@@ -128,9 +128,26 @@ def add_running_product_check(ceremony: Ceremony, accumulator: ParingAccumulator
         pks = transcript.witness.pot_pubkeys
         l = len(witness.running_products)
         accumulator.append(products[:- 1], pks[1:], products[1:], [g1] * l)
-            
+
+def add_g1_powers_construction_check(ceremony: Ceremony, accumulator: ParingAccumulator) -> PairingAccumulator:
+    for transcript in ceremony.transcript:\
+        num_powers = transcript.num_g1_powers
+        powers = transcript.pot.g1_powers
+        pi =  transcript.witness.running_products[-1]
+        accumulator.append(powers[:-1], pi, powers[1:], [g1] * num_powers)
+
+def add_g2_powers_construction_check(ceremony: Ceremony, accumulator: ParingAccumulator) -> PairingAccumulator:
+    for transcript in ceremony.transcript:
+        num_powers = transcript.num_g2_powers
+        g1_powers = transcript.pot.g1_powers
+        g2_powers = transcript.pot.g2_powers
+        accumulator.append([g1] * num_powers, g2_powers, g1_powers, [g2] * num_powers)
 
 def verify_ceremony_parings(ceremony: Ceremony) -> bool:
+    accumulator = PairingAccumulator()
+    accumulator = add_running_product_check(ceremony, accumulator)
+    accumulator = add_g1_powers_construction_check(ceremony, accumulator)
+    accumulator = add_g2_powers_construction_check(ceremony, accumulator)
     
 
 
