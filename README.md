@@ -69,12 +69,12 @@ transcript = Transcript(
     num_g1_powers = n
     num_g2_powers = m
     pot = PowersOfTau(
-        g1_powers= [g1] * n
-        g2_powers= [g2] * m
+        g1_powers= [bls.g1] * n
+        g2_powers= [bls.g2] * m
     )
     witness = Witness(
-        running_products = [g1]
-        pot_pubkeys = [g2]
+        running_products = [bls.g1]
+        pot_pubkeys = [bls.g2]
     )    
 )
 ```
@@ -107,6 +107,10 @@ Implementations of the [IRTF BLS draft specification](https://datatracker.ietf.o
 - Running Product construction
 - Correct construction of Powers
 
+
+### Random Linear combination
+
+
 ```python
 @dataclass
 class ParingAccumulator:
@@ -120,40 +124,54 @@ class ParingAccumulator:
         self.g2_l.append(g2_l)
         self.g1_r.append(g1_r)
         self.g2_r.append(g2_r)
+    
+    def random_linear_combination(self) -> Tuple[G1Point, G2Point, G1Point, G2Point]:
+        l = len(self.g1_l)
+        rand_nums = [randbelow(bls.r) for _ in range(l)]
+        g1_ls = [bls.G1.mul(r, P) for r, P in zip(rand_nums, self.g1_l)]
+        g2_ls = [bls.G2.mul(r, P) for r, P in zip(rand_nums, self.g2_l)]
+        g1_rs = [bls.G1.mul(r, P) for r, P in zip(rand_nums, self.g1_r)]
+        g2_rs = [bls.G2.mul(r, P) for r, P in zip(rand_nums, self.g2_r)]
 
+        g1_l = reduce[g1_ls, bls.G1.add]
+        g2_l = reduce[g2_ls, bls.G2.add]
+        g1_r = reduce[g1_rs, bls.G1.add]
+        g2_r = reduce[g2_rs, bls.G2.add]
+
+        return g1_l, g2_l, g1_r, g2_r
 
 def add_running_product_check(ceremony: Ceremony, accumulator: ParingAccumulator) -> PairingAccumulator:
     for transcript in ceremony.transcripts:
         products = transcript.witness.running_products
         pks = transcript.witness.pot_pubkeys
         l = len(witness.running_products)
-        accumulator.append(products[:- 1], pks[1:], products[1:], [g1] * l)
+        accumulator.append(products[:- 1], pks[1:], products[1:], [bls.g1] * l)
+    return accumulator
 
 def add_g1_powers_construction_check(ceremony: Ceremony, accumulator: ParingAccumulator) -> PairingAccumulator:
     for transcript in ceremony.transcript:\
         num_powers = transcript.num_g1_powers
         powers = transcript.pot.g1_powers
         pi =  transcript.witness.running_products[-1]
-        accumulator.append(powers[:-1], pi, powers[1:], [g1] * num_powers)
+        accumulator.append(powers[:-1], pi, powers[1:], [bls.g1] * num_powers)
+    return accumulator
 
 def add_g2_powers_construction_check(ceremony: Ceremony, accumulator: ParingAccumulator) -> PairingAccumulator:
     for transcript in ceremony.transcript:
         num_powers = transcript.num_g2_powers
         g1_powers = transcript.pot.g1_powers
         g2_powers = transcript.pot.g2_powers
-        accumulator.append([g1] * num_powers, g2_powers, g1_powers, [g2] * num_powers)
+        accumulator.append([bls.g1] * num_powers, g2_powers, g1_powers, [bls.g2] * num_powers)
+    return accumulator
 
 def verify_ceremony_parings(ceremony: Ceremony) -> bool:
     accumulator = PairingAccumulator()
     accumulator = add_running_product_check(ceremony, accumulator)
     accumulator = add_g1_powers_construction_check(ceremony, accumulator)
     accumulator = add_g2_powers_construction_check(ceremony, accumulator)
-    
-
-
+    g1_l, g2_l, g1_r, g2_r = accumulator.random_linear_combination()
+    return bls.paring(g1_l, g2_l) == bls.paring(g1_r, g2_r)
 ```
-
-#### Random Linear Combination
 
 ## Contribution
 
