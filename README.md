@@ -105,11 +105,13 @@ Implementations of the [IRTF BLS draft specification](https://datatracker.ietf.o
 ### Pairing Checks
 
 - Running Product construction
-- Correct construction of Powers
+- Correct construction of G1 Powers
+- Correct construction of G2 Powers
 
 
 ### Random Linear combination
 
+Due to the high computational cost of performing pairings, implementors SHOULD make use of random linear combinations to reduce the verification time. The idea is that by pairings can be combined into a single pairing by having the verifier sample a random $r_i$ for each of the pairing checks, combining the points via a linear combination, and only performing one pairing check over the summed points.
 
 ```python
 @dataclass
