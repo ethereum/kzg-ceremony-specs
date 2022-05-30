@@ -110,18 +110,24 @@ Implementations of the [IRTF BLS draft specification](https://datatracker.ietf.o
 ```python
 @dataclass
 class ParingAccumulator:
-    points: List[Tuple[G1Point, G2Point, G1Point, G2Point]]
-    
-    def append(g1_l: [G1Point], g2_l: G2Point, g1_r: G1Point, g2_r: G2Point) -> None:
-        points.append((g1_l, g2_l, g1_r, g2_r))
+    g1_l: List[G1Point]
+    g2_l: List[G2Point]
+    g1_r: List[G1Point]
+    g2_r: List[G2Point]
+
+    def append(self, g1_l: List[G1Point], g2_l: List[G2Point], g1_r: List[G1Point], g2_r: List[G2Point]) -> None:
+        self.g1_l.append(g1_l)
+        self.g2_l.append(g2_l)
+        self.g1_r.append(g1_r)
+        self.g2_r.append(g2_r)
 
 
 def add_running_product_check(ceremony: Ceremony, accumulator: ParingAccumulator) -> PairingAccumulator:
     for transcript in ceremony.transcripts:
         products = transcript.witness.running_products
         pks = transcript.witness.pot_pubkeys
-        for i in range(1, len(witness.running_products)):
-            accumulator.append(products[i - 1], pks[i], products[i], g1)
+        l = len(witness.running_products)
+        accumulator.append(products[:- 1], pks[1:], products[1:], [g1] * l)
             
 
 def verify_ceremony_parings(ceremony: Ceremony) -> bool:
