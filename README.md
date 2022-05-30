@@ -88,6 +88,7 @@ We define the following checks:
 - Transcript matches schema
 - G1 powers length check
 - G2 Powers length check
+- Witness length check
 
 ### Point Checks
 
@@ -105,6 +106,29 @@ Implementations of the [IRTF BLS draft specification](https://datatracker.ietf.o
 
 - Running Product construction
 - Correct construction of Powers
+
+```python
+@dataclass
+class ParingAccumulator:
+    points: List[Tuple[G1Point, G2Point, G1Point, G2Point]]
+    
+    def append(g1_l: [G1Point], g2_l: G2Point, g1_r: G1Point, g2_r: G2Point) -> None:
+        points.append((g1_l, g2_l, g1_r, g2_r))
+
+
+def add_running_product_check(ceremony: Ceremony, accumulator: ParingAccumulator) -> PairingAccumulator:
+    for transcript in ceremony.transcripts:
+        products = transcript.witness.running_products
+        pks = transcript.witness.pot_pubkeys
+        for i in range(1, len(witness.running_products)):
+            accumulator.append(products[i - 1], pks[i], products[i], g1)
+            
+
+def verify_ceremony_parings(ceremony: Ceremony) -> bool:
+    
+
+
+```
 
 #### Random Linear Combination
 
