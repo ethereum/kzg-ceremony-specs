@@ -50,7 +50,7 @@ class Witness:
 class Transcript:
     num_g1_powers: int
     num_g2_powers: int
-    pot: PowersOfTau
+    powers_of_tau: PowersOfTau
     witness: Witness
 ```
 
@@ -111,9 +111,9 @@ def g2_subgroup_check(P: G2Point) -> bool:
 
 def subgroup_checks(ceremony: Ceremony) -> bool:
     for transcript in ceremony.transcripts:
-        if not all(g1_subgroup_check(P) for P in transcript.pot.g1_powers):
+        if not all(g1_subgroup_check(P) for P in transcript.powers_of_tau.g1_powers):
             return False
-        if not all(g2_subgroup_check(P) for P in transcript.pot.g2_powers):
+        if not all(g2_subgroup_check(P) for P in transcript.powers_of_tau.g2_powers):
             return False
         if not all(g1_subgroup_check(P) for P in transcript.witness.running_products):
             return False
@@ -205,7 +205,7 @@ def add_running_product_check(ceremony: Ceremony, accumulator: ParingAccumulator
 def add_g1_powers_construction_check(ceremony: Ceremony, accumulator: ParingAccumulator) -> PairingAccumulator:
     for transcript in ceremony.transcript:\
         num_powers = transcript.num_g1_powers
-        powers = transcript.pot.g1_powers
+        powers = transcript.powers_of_tau.g1_powers
         pi =  transcript.witness.running_products[-1]
         accumulator.append(powers[:-1], pi, powers[1:], [bls.g1] * num_powers)
     return accumulator
@@ -213,8 +213,8 @@ def add_g1_powers_construction_check(ceremony: Ceremony, accumulator: ParingAccu
 def add_g2_powers_construction_check(ceremony: Ceremony, accumulator: ParingAccumulator) -> PairingAccumulator:
     for transcript in ceremony.transcript:
         num_powers = transcript.num_g2_powers
-        g1_powers = transcript.pot.g1_powers
-        g2_powers = transcript.pot.g2_powers
+        g1_powers = transcript.powers_of_tau.g1_powers
+        g2_powers = transcript.powers_of_tau.g2_powers
         accumulator.append([bls.g1] * num_powers, g2_powers, g1_powers, [bls.g2] * num_powers)
     return accumulator
 
