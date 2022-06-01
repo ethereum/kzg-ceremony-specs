@@ -1,0 +1,71 @@
+{
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "$ref": "#/$defs/ceremony",
+    "$defs": {
+        "ceremony": {
+            "type": "array",
+            "items": {
+                "$ref": "#/$defs/transcript"
+              }
+        },
+        "transcript": {
+            "type": "object",
+            "properties": {
+                "numG1Powers": {
+                  "type": "integer"
+                },
+                "numG2Powers": {
+                  "type": "integer"
+                },
+                "powersOfTau": {
+                    "type": "object",
+                    "properties": {
+                        "G1Powers": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/$defs/G1Point"
+                            }
+                        },
+                        "G2Powers": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/$defs/G2Point"
+                            },
+                            "minItems": 65,
+                            "maxItems": 65
+                        }
+                    }
+                },
+                "witness": {
+                    "type": "object",
+                    "properties": {
+                        "runningProducts": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/$defs/G1Point"
+                            },
+                            "minItems": 1,
+                            "uniqueItems": true
+                        },
+                        "potPubkeys": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/$defs/G2Point"
+                            },
+                            "minItems": 1,
+                            "uniqueItems": true
+                        }
+                    }
+                }
+            }
+        },
+        "G1Point": {
+            "type": "string",
+            "pattern": "^0x[a-f0-9]{96}$"
+        },
+        "G2Point": {
+            "type": "string",
+            "pattern": "^0x[a-f0-9]{192}$"
+        }
+    }
+}
