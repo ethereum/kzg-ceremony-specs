@@ -33,7 +33,11 @@
                                 "minItems": 65,
                                 "maxItems": 65
                             }
-                        }
+                        },
+                        "required": [
+                            "G1Powers",
+                            "G2Powers"
+                        ]
                     },
                     "witness": {
                         "type": "object",
@@ -54,11 +58,22 @@
                                 "minItems": 1,
                                 "uniqueItems": true
                             }
-                        }
+                        },
+                        "required": [
+                            "runningProducts",
+                            "potPubkeys"
+                        ]
                     }
-                }
+                },
+                "required": [
+                    "numG1Powers",
+                    "numG2Powers",
+                    "powersOfTau",
+                    "witness"
+                ]
             }
-          }
+          },
+          "minItems": 1
     },
     "$defs": {
         "G1Point": {
