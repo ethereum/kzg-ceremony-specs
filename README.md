@@ -60,7 +60,7 @@ class Ceremony
     transcripts: List[Transcript]
 ```
 
-## Intialization
+## Initialization
 
 We initialize this trusted setup as follows:
 
@@ -92,11 +92,62 @@ We define the following checks:
 
 ### Point Checks
 
-- G1 Subgroup checks
-- G2 Subgroup checks
-- Witness Subgroup checks
-- Non-zero check
-- Pubkey uniqueness
+- __G1 Powers Subgroup check__ - For each of the $\mathbb{G}_1$ Powers of Tau (`g1_powers`), verify that they are actually elements of the subgroup.
+- __G2 Powers Subgroup check__ - For each of the $\mathbb{G}_2$ Powers of Tau (`g2_powers`), verify that they are actually elements of the subgroup.
+- __Witness Subgroup checks__ - For each of the points in `witness`, check that they are actually elements of their respective subgroups.
+- __Non-zero check__ - Check that none of the `running_products`s are equal to the point at infinity. Note we need only the `running_products` as it is faster and sufficient to check none of the secrets are 0.
+- __Pubkey uniqueness__ - Check that there are no duplicate `pot_pubkey`s across all of the `Transcript`s.
+
+```python
+def g1_subgroup_check(P: G1Point) -> bool:
+    # If your BLS library API offers a G1 subgroup check, you SHOULD use that as it is likely much faster
+    return bls.G1.is_inf(bls.G1.mul(bls.r, P))
+
+
+def g2_subgroup_check(P: G2Point) -> bool:
+    # If your BLS library API offers a G2 subgroup check, you SHOULD use that as it is likely much faster
+    return bls.G2.is_inf(bls.G2.mul(bls.r, P))
+
+
+def subgroup_checks(ceremony: Ceremony) -> bool:
+    for transcript in ceremony.transcripts:
+        if not all(g1_subgroup_check(P) for P in transcript.pot.g1_powers):
+            return False
+        if not all(g2_subgroup_check(P) for P in transcript.pot.g2_powers):
+            return False
+        if not all(g1_subgroup_check(P) for P in transcript.witness.running_products):
+            return False
+        if not all(g2_subgroup_check(P) for P in transcript.witness.pot_pubkeys):
+            return False
+    return True
+
+
+def non_zero_check(ceremony: Ceremony) -> bool:
+    for transcript in transcripts:
+        if not all(bls.G1.is_inf(P) for P in transcript.witness.running_products):
+            return False
+    return True
+
+
+def pubkey_uniqueness_check(ceremony: Ceremony) -> bool:
+    '''
+    Note: pubkeys MUST be unique across all transcripts
+    Note: This algorithm (comparing bit-representations) suffices iff the pubkeys are stored in affine co-ordinates.
+          If projective coordinates are used, then pubkeys must be compared using bls.G2.is_equal()
+    '''
+    pubkeys = []
+    for transcript in ceremony:
+        pubkeys += transcript.witness.pot_pubkeys
+    return len(pubkeys) == len(list(set(pubkeys)))
+
+
+def point_checks(ceremony: Ceremony) -> bool:
+    if not subgroup_checks(ceremony):
+        return False
+    if not non_zero_check(ceremony):
+        return False
+    return pubkey_uniqueness_check(ceremony)
+```
 
 #### Using `KeyValidate`
 
@@ -104,9 +155,9 @@ Implementations of the [IRTF BLS draft specification](https://datatracker.ietf.o
 
 ### Pairing Checks
 
-- Running Product construction
-- Correct construction of G1 Powers
-- Correct construction of G2 Powers
+- __Running Product construction__ - Verify that the secret $\tau$ is correctly composed of sub-shares contributed by the earlier participants. This is done by checking that $\tau_{i+1} = \tau_i * x_{i+1}$ for each of the previous contributions. This can be performed by performing the multiplication in the exponent of $\mathbb{G}_T$: $e([\tau_{i+1}]_1, g_2) \stackrel{?}{=}e([\tau_i]_1, [x_{i+1}]_2)$
+- __Correct construction of G1 Powers__ - Verify that the $\mathbb{G}_1$ points provided are indeed incremental powers of (the same) $\tau$ and that $[\tau]_1$ is the output after that latest contribution. This check is done by asserting that the next $\mathbb{G}_1$ point is the result of multiplying the previous one with $\tau$: $e([\tau^{i+1}]_1, g_2) \stackrel{?}{=}e([\tau^i]_1, [\tau]_2)$
+- __Correct construction of G2 Powers__ - Verify that the $\mathbb{G}_2$ points provided are indeed incremental powers of $\tau$ and that $\tau$ is the same across $\mathbb{G}_1$ and $\mathbb{G}_2$. This check is done by verifying that $\tau^i$ is the same across $[\tau^i]_1$ and $[\tau^i]_2$. $e([\tau^i]_1, g_2) \stackrel{?}{=}e(g_2, [\tau^i]_2)$
 
 
 ### Random Linear combination
@@ -141,6 +192,7 @@ class ParingAccumulator:
         g2_r = reduce[g2_rs, bls.G2.add]
 
         return g1_l, g2_l, g1_r, g2_r
+
 
 def add_running_product_check(ceremony: Ceremony, accumulator: ParingAccumulator) -> PairingAccumulator:
     for transcript in ceremony.transcripts:
