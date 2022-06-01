@@ -1,80 +1,10 @@
 {
-    "$schema": "https://json-schema.org/draft/2019-09/schema",
-    "ceremony": {
-        "type": "array",
-        "items": {
-            "transcript": {
-                "type": "object",
-                "properties": {
-                    "numG1Powers": {
-                      "type": "integer",
-                      "multipleOf" : 2,
-                      "minimum": 2
-                    },
-                    "numG2Powers": {
-                      "type": "integer",
-                      "minimum": 65,
-                      "maximum": 65
-                    },
-                    "powersOfTau": {
-                        "type": "object",
-                        "properties": {
-                            "G1Powers": {
-                                "type": "array",
-                                "items": {
-                                    "$ref": "#/$defs/G1Point"
-                                }
-                            },
-                            "G2Powers": {
-                                "type": "array",
-                                "items": {
-                                    "$ref": "#/$defs/G2Point"
-                                },
-                                "minItems": 65,
-                                "maxItems": 65
-                            }
-                        },
-                        "required": [
-                            "G1Powers",
-                            "G2Powers"
-                        ]
-                    },
-                    "witness": {
-                        "type": "object",
-                        "properties": {
-                            "runningProducts": {
-                                "type": "array",
-                                "items": {
-                                    "$ref": "#/$defs/G1Point"
-                                },
-                                "minItems": 1,
-                                "uniqueItems": true
-                            },
-                            "potPubkeys": {
-                                "type": "array",
-                                "items": {
-                                    "$ref": "#/$defs/G2Point"
-                                },
-                                "minItems": 1,
-                                "uniqueItems": true
-                            }
-                        },
-                        "required": [
-                            "runningProducts",
-                            "potPubkeys"
-                        ]
-                    }
-                },
-                "required": [
-                    "numG1Powers",
-                    "numG2Powers",
-                    "powersOfTau",
-                    "witness"
-                ]
-            }
-          },
-          "minItems": 1
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "array",
+    "items": {
+        "$ref": "#/$defs/transcript"
     },
+    "minItems": 1,
     "$defs": {
         "G1Point": {
             "type": "string",
@@ -83,6 +13,74 @@
         "G2Point": {
             "type": "string",
             "pattern": "^0x[a-f0-9]{192}$"
+        },
+        "transcript": {
+            "type": "object",
+            "properties": {
+                "numG1Powers": {
+                    "type": "integer",
+                    "multipleOf" : 2,
+                    "minimum": 2
+                },
+                "numG2Powers": {
+                    "type": "integer",
+                    "minimum": 65,
+                    "maximum": 65
+                },
+                "powersOfTau": {
+                    "type": "object",
+                    "properties": {
+                        "G1Powers": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/$defs/G1Point"
+                            },
+                            "minItems": 2
+                        },
+                        "G2Powers": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/$defs/G2Point"
+                            },
+                            "minItems": 65,
+                            "maxItems": 65
+                        }
+                    },
+                    "required": [
+                        "G1Powers",
+                        "G2Powers"
+                    ]
+                },
+                "witness": {
+                    "type": "object",
+                    "properties": {
+                        "runningProducts": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/$defs/G1Point"
+                            },
+                            "uniqueItems": true
+                        },
+                        "potPubkeys": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/$defs/G2Point"
+                            },
+                            "uniqueItems": true
+                        }
+                    },
+                    "required": [
+                        "runningProducts",
+                        "potPubkeys"
+                    ]
+                }
+            },
+            "required": [
+                "numG1Powers",
+                "numG2Powers",
+                "powersOfTau",
+                "witness"
+            ]
         }
     }
 }
