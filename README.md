@@ -19,15 +19,15 @@ Due to the simplicity of this PoT setup, we only send over the entire transcript
 ```python
 @dataclass
 class PowersOfTau:
-    g1_powers: List[G1Point]
-    g2_powers: List[G2Point]
+    g1_powers: List[bls.G1Point]
+    g2_powers: List[bls.G2Point]
 ```
 
 ```python
 @dataclass
 class Witness:
-    running_products: List[G1Point]
-    pot_pubkeys: List[G2Point]
+    running_products: List[bls.G1Point]
+    pot_pubkeys: List[bls.G2Point]
 ```
 
 ```python
@@ -65,29 +65,19 @@ We define the following checks:
 - __G1 Powers Subgroup check__ - For each of the $\mathbb{G}_1$ Powers of Tau (`g1_powers`), verify that they are actually elements of the subgroup.
 - __G2 Powers Subgroup check__ - For each of the $\mathbb{G}_2$ Powers of Tau (`g2_powers`), verify that they are actually elements of the subgroup.
 - __Witness Subgroup checks__ - For each of the points in `witness`, check that they are actually elements of their respective subgroups.
-- __Non-zero check__ - Check that none of the `running_products`s are equal to the point at infinity. Note we need only the `running_products` as it is faster and sufficient to check none of the secrets are 0.
+- __Non-zero check__ - Check that none of the `running_products`s are equal to the point at infinity. Note we need only to check the `running_products` as we have later check the correct multiplication of `pot_pubkeys` it is faster and sufficient to check none of the secrets are 0.
 - __Pubkey uniqueness__ - Check that there are no duplicate `pot_pubkey`s across all of the `Transcript`s.
 
 ```python
-def g1_subgroup_check(P: G1Point) -> bool:
-    # If your BLS library API offers a G1 subgroup check, you SHOULD use that as it is likely much faster
-    return bls.G1.is_inf(bls.G1.mul(bls.r, P))
-
-
-def g2_subgroup_check(P: G2Point) -> bool:
-    # If your BLS library API offers a G2 subgroup check, you SHOULD use that as it is likely much faster
-    return bls.G2.is_inf(bls.G2.mul(bls.r, P))
-
-
 def subgroup_checks(ceremony: Ceremony) -> bool:
     for transcript in ceremony.transcripts:
-        if not all(g1_subgroup_check(P) for P in transcript.powers_of_tau.g1_powers):
+        if not all(bls.G1.is_on_curve(P) for P in transcript.powers_of_tau.g1_powers):
             return False
-        if not all(g2_subgroup_check(P) for P in transcript.powers_of_tau.g2_powers):
+        if not all(bls.G2.is_on_curve(P) for P in transcript.powers_of_tau.g2_powers):
             return False
-        if not all(g1_subgroup_check(P) for P in transcript.witness.running_products):
+        if not all(bls.G1.is_on_curve(P) for P in transcript.witness.running_products):
             return False
-        if not all(g2_subgroup_check(P) for P in transcript.witness.pot_pubkeys):
+        if not all(bls.G2.is_on_curve(P) for P in transcript.witness.pot_pubkeys):
             return False
     return True
 
@@ -137,18 +127,18 @@ Due to the high computational cost of performing pairings, implementors SHOULD m
 ```python
 @dataclass
 class ParingAccumulator:
-    g1_l: List[G1Point]
-    g2_l: List[G2Point]
-    g1_r: List[G1Point]
-    g2_r: List[G2Point]
+    g1_l: List[bls.G1Point]
+    g2_l: List[bls.G2Point]
+    g1_r: List[bls.G1Point]
+    g2_r: List[bls.G2Point]
 
-    def append(self, g1_l: List[G1Point], g2_l: List[G2Point], g1_r: List[G1Point], g2_r: List[G2Point]) -> None:
+    def append(self, g1_l: List[bls.G1Point], g2_l: List[bls.G2Point], g1_r: List[bls.G1Point], g2_r: List[bls.G2Point]) -> None:
         self.g1_l.append(g1_l)
         self.g2_l.append(g2_l)
         self.g1_r.append(g1_r)
         self.g2_r.append(g2_r)
     
-    def random_linear_combination(self) -> Tuple[G1Point, G2Point, G1Point, G2Point]:
+    def random_linear_combination(self) -> Tuple[bls.G1Point, bls.G2Point, bls.G1Point, bls.G2Point]:
         l = len(self.g1_l)
         rand_nums = [randbelow(bls.r) for _ in range(l)]
         g1_ls = [bls.G1.mul(r, P) for r, P in zip(rand_nums, self.g1_l)]
@@ -169,7 +159,7 @@ def add_running_product_check(ceremony: Ceremony, accumulator: ParingAccumulator
         products = transcript.witness.running_products
         pks = transcript.witness.pot_pubkeys
         l = len(witness.running_products)
-        accumulator.append(products[:- 1], pks[1:], products[1:], [bls.g1] * l)
+        accumulator.append(products[:- 1], pks[1:], products[1:], [bls.G1.g1] * l)
     return accumulator
 
 def add_g1_powers_construction_check(ceremony: Ceremony, accumulator: ParingAccumulator) -> PairingAccumulator:
@@ -177,7 +167,7 @@ def add_g1_powers_construction_check(ceremony: Ceremony, accumulator: ParingAccu
         num_powers = transcript.num_g1_powers
         powers = transcript.powers_of_tau.g1_powers
         pi =  transcript.witness.running_products[-1]
-        accumulator.append(powers[:-1], pi, powers[1:], [bls.g1] * num_powers)
+        accumulator.append(powers[:-1], pi, powers[1:], [bls.G1.g1] * num_powers)
     return accumulator
 
 def add_g2_powers_construction_check(ceremony: Ceremony, accumulator: ParingAccumulator) -> PairingAccumulator:
@@ -185,7 +175,7 @@ def add_g2_powers_construction_check(ceremony: Ceremony, accumulator: ParingAccu
         num_powers = transcript.num_g2_powers
         g1_powers = transcript.powers_of_tau.g1_powers
         g2_powers = transcript.powers_of_tau.g2_powers
-        accumulator.append([bls.g1] * num_powers, g2_powers, g1_powers, [bls.g2] * num_powers)
+        accumulator.append([bls.G1.g1] * num_powers, g2_powers, g1_powers, [bls.G2.g2] * num_powers)
     return accumulator
 
 def verify_ceremony_parings(ceremony: Ceremony) -> bool:
