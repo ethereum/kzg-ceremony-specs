@@ -42,7 +42,7 @@ Implementations making use of the IRTF BLS Standards SHOULD choose the `BLS_POP_
 - `bls.G1.add(P, Q)` - EC group addition of points `P` and `Q` $\in \mathbb{G}_1$, returns a $\mathbb{G}_1$ point.
 - `bls.G1.mul(x, P)` - Scalar multiplication of point `P` by `x` $\in \mathbb{F}_r$, returns a $\mathbb{G}_1$ point.
 - `bls.G1.is_inf(P)` - Returns `True` if `P` $=\mathcal{O}_1$, `False` otherwise
-- `bls.G1.is_on_curve(P)` - $\mathbb{G}_1$ subgroup check. Returns `True` if `P` $\in\mathcal{G}_1$, `False` otherwise
+- `bls.G1.is_in_G1(P)` - $\mathbb{G}_1$ subgroup check. Returns `True` if `P` $\in\mathcal{G}_1$, `False` otherwise
 
 ### G2
 
@@ -50,7 +50,7 @@ Implementations making use of the IRTF BLS Standards SHOULD choose the `BLS_POP_
 - `bls.G2.add(P, Q)` - EC group addition of points `P` and `Q` $\in \mathbb{G}_2$, returns a $\mathbb{G}_2$ point.
 - `bls.G2.mul(x, P)` - Scalar multiplication of point `P` by `x` $\in \mathbb{F}_r$, returns a $\mathbb{G}_2$ point.
 - `bls.G2.is_inf(P)` - Returns `True` if `P` $=\mathcal{O}_2$, `False` otherwise
-- `bls.G2.is_on_curve(P)` - $\mathbb{G}_2$ subgroup check. Returns `True` if `P` $\in\mathcal{G}_2$, `False` otherwise
+- `bls.G2.is_in_G2(P)` - $\mathbb{G}_2$ subgroup check. Returns `True` if `P` $\in\mathcal{G}_2$, `False` otherwise
 
 ### Pairing
 

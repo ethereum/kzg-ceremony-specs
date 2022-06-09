@@ -31,13 +31,13 @@ def schema_check(ceremony_json: str, schema_path: str) -> bool:
 ```python
 def subgroup_checks(ceremony: Ceremony) -> bool:
     for transcript in ceremony.transcripts:
-        if not all(bls.G1.is_on_curve(P) for P in transcript.powers_of_tau.g1_powers):
+        if not all(bls.G1.is_in_G1(P) for P in transcript.powers_of_tau.g1_powers):
             return False
-        if not all(bls.G2.is_on_curve(P) for P in transcript.powers_of_tau.g2_powers):
+        if not all(bls.G2.is_in_G2(P) for P in transcript.powers_of_tau.g2_powers):
             return False
-        if not all(bls.G1.is_on_curve(P) for P in transcript.witness.running_products):
+        if not all(bls.G1.is_in_G1(P) for P in transcript.witness.running_products):
             return False
-        if not all(bls.G2.is_on_curve(P) for P in transcript.witness.pot_pubkeys):
+        if not all(bls.G2.is_in_G2(P) for P in transcript.witness.pot_pubkeys):
             return False
     return True
 ```
