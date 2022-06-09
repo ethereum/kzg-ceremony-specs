@@ -28,6 +28,45 @@ A good method for meeting the above requirements would be to make use of the `Ke
 
 ### Downloading the transcript
 
+### Verifying the transcript
+
+In order to ensure that the coordinator is not tricking a participant into leaking some of the entropy they are contributing, the participant SHOULD perform the following checks:
+
+
+#### Transcript structure:
+
+- __Schema Check__ - Verify that the received `ceremony.json` matches the `ceremonySchema.json` schema.
+```python
+def schema_check(ceremony_json: str, schema_path: str) -> bool:
+    with open(schema_path) as schema_file:
+        schema = json.load(schema_file)
+        try:
+            jsonschema.validate(ceremony_json, schema)
+            return True
+        except Exception:
+            pass
+    return False
+```
+
+#### Point Checks
+
+- Subgroup checks
+    - __G1 Powers Subgroup check__ - For each of the $\mathbb{G}_1$ Powers of Tau (`g1_powers`), verify that they are actually elements of the subgroup.
+    - __G2 Powers Subgroup check__ - For each of the $\mathbb{G}_2$ Powers of Tau (`g2_powers`), verify that they are actually elements of the subgroup.
+    - __Running Product Subgroup check__ - Check that the last running product (the one the participant will interact with) is an element of the subgroup.
+
+```python
+def subgroup_checks(ceremony: Ceremony) -> bool:
+    for transcript in ceremony.transcripts:
+        if not all(bls.G1.is_on_curve(P) for P in transcript.powers_of_tau.g1_powers):
+            return False
+        if not all(bls.G2.is_on_curve(P) for P in transcript.powers_of_tau.g2_powers):
+            return False
+        if not bls.G1.is_on_curve(transcript.witness.running_products[:-1]):
+            return False
+    return True
+```
+
 ### Updating the transcript
 
 Once the participant has fetched the ceremony file, for each of the `Transcript`s within they MUST perform the following actions:
