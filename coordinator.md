@@ -70,9 +70,9 @@ def pubkey_uniqueness_check(ceremony: Ceremony) -> bool:
 ```python
 def witness_continuity_check(previous_ceremony: Ceremony, new_ceremony: Ceremony) -> bool:
     for previous_transcript, new_transcript in zip(previous_ceremony.transcripts, new_ceremony.transcripts):
-        if previous_transcript.witness.running_products[:-1] != new_transcript.witness.running_products:
+        if previous_transcript.witness.running_products != new_transcript.witness.running_products[:-1]:
             return False
-        if previous_transcript.witness.pot_pubkeys[:-1] != new_transcript.witness.pot_pubkeys:
+        if previous_transcript.witness.pot_pubkeys != new_transcript.witness.pot_pubkeys[:-1]:
             return False
     return True
 ```
