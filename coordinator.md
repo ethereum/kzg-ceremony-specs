@@ -45,7 +45,7 @@ def subgroup_checks(ceremony: Ceremony) -> bool:
 - __Non-zero check__ - Check that none of the `running_products`s are equal to the point at infinity. Note we need only to check the `running_products` as we have later check the correct multiplication of `pot_pubkeys` it is faster and sufficient to check none of the secrets are 0.
 ```python
 def non_zero_check(ceremony: Ceremony) -> bool:
-    for transcript in transcripts:
+    for transcript in ceremony.transcripts:
         if not all(bls.G1.is_inf(P) for P in transcript.witness.running_products):
             return False
     return True
@@ -60,7 +60,7 @@ def pubkey_uniqueness_check(ceremony: Ceremony) -> bool:
           If projective coordinates are used, then pubkeys must be compared using bls.G2.is_equal()
     '''
     pubkeys = []
-    for transcript in ceremony:
+    for transcript in ceremony.transcripts:
         pubkeys += transcript.witness.pot_pubkeys
     return len(pubkeys) == len(list(set(pubkeys)))
 ```
@@ -69,7 +69,7 @@ def pubkey_uniqueness_check(ceremony: Ceremony) -> bool:
 
 ```python
 def witness_continuity_check(previous_ceremony: Ceremony, new_ceremony: Ceremony) -> bool:
-    for previous_transcript, new_transcript in zip(previous_ceremony, new_ceremony):
+    for previous_transcript, new_transcript in zip(previous_ceremony.transcripts, new_ceremony.transcripts):
         if previous_transcript.witness.running_products[:-1] != new_transcript.witness.running_products:
             return False
         if previous_transcript.witness.pot_pubkeys[:-1] != new_transcript.witness.pot_pubkeys:

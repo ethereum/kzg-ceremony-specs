@@ -1,6 +1,6 @@
 {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "type": "array",
+    "type": "object",
     "items": {
         "$ref": "#/$defs/transcript"
     },
