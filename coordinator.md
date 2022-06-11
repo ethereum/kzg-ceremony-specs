@@ -83,7 +83,44 @@ Implementations of the [IRTF BLS draft specification](https://datatracker.ietf.o
 
 ### Pairing Checks
 
-- __Running Product construction__ - Verify that the secret $\tau$ is correctly composed of sub-shares contributed by the earlier participants. This is done by checking that $\tau_{i+1} = \tau_i * x_{i+1}$ for each of the previous contributions. This can be performed by performing the multiplication in the exponent of $\mathbb{G}_T$: $e([\tau_{i+1}]_1, g_2) \stackrel{?}{=}e([\tau_i]_1, [x_{i+1}]_2)$
+_Note:_ The following pairing checks SHOULD be batched via a random linear combination which would reduce the number of final exponentiations to 2 and decrease the number of Miller loops needed.
+
+- __Running Product construction__ - Verify that the secret $\tau$ is correctly composed of sub-shares contributed by the earlier participants. Let $P_i$ be the $i$th running product: $P_i = [\prod_{j=1}^ix_i]_1$. Correct construction of the running products can then checked by$: $e(P_{i+1}, g_2) \stackrel{?}{=}e(P_i, [x_{i+1}]_2)$
+
+```python
+def running_product_construction_check(ceremony: Ceremony) -> bool:
+    for transcript in ceremony.transcripts:
+       products = transcript.witness.running_products
+       pks = transcript.witness.pot_pubkeys
+       for pk, product, next_product in zip(pks[1:], products[:-1], products[1:]):
+           if bls.pairing(product, pk) != bls.pairing(next_product, bls.G2.g2):
+               return False
+    return True
+```
+
 - __Correct construction of G1 Powers__ - Verify that the $\mathbb{G}_1$ points provided are indeed incremental powers of (the same) $\tau$ and that $[\tau]_1$ is the output after that latest contribution. This check is done by asserting that the next $\mathbb{G}_1$ point is the result of multiplying the previous one with $\tau$: $e([\tau^{i+1}]_1, g_2) \stackrel{?}{=}e([\tau^i]_1, [\tau]_2)$
+
+```python
+def g1_powers_check(ceremony: Ceremony) -> bool:
+    for transcript in ceremony.transcripts:
+       powers = transcript.powers_of_tau.g1_powers
+       pi = transcript.witness.running_products[-1]
+       for power, next_power in zip(powers[:-1], powers[1:]):
+           if bls.pairing(pi, power) != bls.pairing(bls.G1.g1, next_power):
+               return False
+    return True
+```
+
 - __Correct construction of G2 Powers__ - Verify that the $\mathbb{G}_2$ points provided are indeed incremental powers of $\tau$ and that $\tau$ is the same across $\mathbb{G}_1$ and $\mathbb{G}_2$. This check is done by verifying that $\tau^i$ is the same across $[\tau^i]_1$ and $[\tau^i]_2$. $e([\tau^i]_1, g_2) \stackrel{?}{=}e(g_2, [\tau^i]_2)$
+
+```python
+def g2_powers_check(ceremony: Ceremony) -> bool:
+    for transcript in ceremony.transcripts:
+       g1_powers = transcript.powers_of_tau.g1_powers
+       g2_powers = transcript.powers_of_tau.g2_powers
+       for g1_power, g2_power in zip(g1_powers, g2_powers):
+           if bls.pairing(bls.G1.g1, g1_power) != bls.pairing(g2_power, bls.G2.g2):
+               return False
+    return True
+```
 
