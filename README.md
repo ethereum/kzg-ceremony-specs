@@ -12,7 +12,7 @@ We are performing a ceremony to generate Powers of Tau for KZG proofs on Ethereu
 
 ## BLS Cryptography
 
-Due to a lack of standardisation for a complete ALI for BLS curves, we define our own in [BLS.md](/BLS.md).
+Due to a lack of standardisation for a complete API for BLS curves, we define our own in [BLS.md](/BLS.md).
 
 ## `ceremony.json`
 
