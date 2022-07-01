@@ -50,20 +50,6 @@ def non_zero_check(ceremony: Ceremony) -> bool:
             return False
     return True
 ```
-- __Pubkey uniqueness__ - Check that there are no duplicate `pot_pubkey`s across all the `Transcript`s.
-
-```python
-def pubkey_uniqueness_check(ceremony: Ceremony) -> bool:
-    '''
-    Note: pubkeys MUST be unique across all transcripts
-    Note: This algorithm (comparing bit-representations) suffices iff the pubkeys are stored in affine co-ordinates.
-          If projective coordinates are used, then pubkeys must be compared using bls.G2.is_equal()
-    '''
-    pubkeys = []
-    for transcript in ceremony.transcripts:
-        pubkeys += transcript.witness.pot_pubkeys
-    return len(pubkeys) == len(list(set(pubkeys)))
-```
 
 - __Witness continuity check__ - Check that the witness has not been tampered with by the coordinator. This is done by checking that the newly received ceremony's witnesses overlap with the previous ceremony's witnesses in all but the last location where an honest participant would have added their contribution.
 
