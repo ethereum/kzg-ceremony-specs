@@ -61,15 +61,13 @@
                             "type": "array",
                             "items": {
                                 "$ref": "#/$defs/G1Point"
-                            },
-                            "uniqueItems": true
+                            }
                         },
                         "potPubkeys": {
                             "type": "array",
                             "items": {
                                 "$ref": "#/$defs/G2Point"
-                            },
-                            "uniqueItems": true
+                            }
                         }
                     },
                     "required": [
@@ -130,15 +128,13 @@
                             "type": "array",
                             "items": {
                                 "$ref": "#/$defs/G1Point"
-                            },
-                            "uniqueItems": true
+                            }
                         },
                         "potPubkeys": {
                             "type": "array",
                             "items": {
                                 "$ref": "#/$defs/G2Point"
-                            },
-                            "uniqueItems": true
+                            }
                         }
                     },
                     "required": [
@@ -199,15 +195,13 @@
                             "type": "array",
                             "items": {
                                 "$ref": "#/$defs/G1Point"
-                            },
-                            "uniqueItems": true
+                            }
                         },
                         "potPubkeys": {
                             "type": "array",
                             "items": {
                                 "$ref": "#/$defs/G2Point"
-                            },
-                            "uniqueItems": true
+                            }
                         }
                     },
                     "required": [
@@ -268,15 +262,13 @@
                             "type": "array",
                             "items": {
                                 "$ref": "#/$defs/G1Point"
-                            },
-                            "uniqueItems": true
+                            }
                         },
                         "potPubkeys": {
                             "type": "array",
                             "items": {
                                 "$ref": "#/$defs/G2Point"
-                            },
-                            "uniqueItems": true
+                            }
                         }
                     },
                     "required": [
