@@ -31,7 +31,7 @@ interface Witness{
 ```
 
 ```typescript
-interface Transcript{
+interface SubCeremony{
     num_g1_powers: number
     num_g2_powers: number
     powers_of_tau: PowersOfTau
@@ -40,25 +40,25 @@ interface Transcript{
 ```
 
 ```typescript
-interface Ceremony {
-    transcript: Transcript[]
+interface Transcript {
+    sub_ceremonies: SubCeremony[]
 }
 ```
 
-### `updateCeremony`
+### `updateTranscript`
 
-This function takes in a `Ceremony` object and a list of hex-encoded `secrets[]` and returns a new `Ceremony` according to the method specified in [`participant.md`](./participant.md). Note that this function does not perform the required subgroup checks, instead it is expected that this will be done separately via the `ceremonySubgroupCheck` function.
+This function takes in a `Transcript` object and a list of hex-encoded `secrets[]` and returns a new `Transcript` according to the method specified in [`participant.md`](./participant.md). Note that this function does not perform the required subgroup checks, instead it is expected that this will be done separately via the `transcriptSubgroupCheck` function.
 
 ```typescript
-function updateCeremony(oldCeremony: Ceremony, secrets: string[]): Ceremony {
+function updateTranscript(oldTranscript: Transcript, secrets: string[]): Transcript {
 }
 ```
 
-### `ceremonySubgroupCheck`
+### `transcriptSubgroupCheck`
 
 This function performs the subgroup checks as described in [`participant.md`](./participant.md). Should all the subgroup checks in every transcript pass, this function returns `true`.
 
 ```typescript
-function ceremonySubgroupCheck(transcript: Transcript): boolean {
+function transcriptSubgroupCheck(transcript: Transcript): boolean {
 }
 ```
