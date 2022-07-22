@@ -1,12 +1,18 @@
 {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
-    "prefixItems": [
-        {"$ref": "#/$defs/2^12Transcript"},
-        {"$ref": "#/$defs/2^13Transcript"},
-        {"$ref": "#/$defs/2^14Transcript"},
-        {"$ref": "#/$defs/2^15Transcript"}
-    ],
+    "properties": {
+        "transcripts": {
+            "type": "array",
+            "prefixItems": [
+                {"$ref": "#/$defs/2^12Transcript"},
+                {"$ref": "#/$defs/2^13Transcript"},
+                {"$ref": "#/$defs/2^14Transcript"},
+                {"$ref": "#/$defs/2^15Transcript"}
+            ],
+            "items": false
+        }
+    },
     "$defs": {
         "G1Point": {
             "type": "string",
