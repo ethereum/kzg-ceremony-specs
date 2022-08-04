@@ -13,13 +13,13 @@ valid contributions. However, the ceremony requires a strict chain of contributi
 
 # Queue Protocol
 
-Participants must qualify by signing in. See [contributor identfication spec](./contributor-identification.md). Once signed in, they may join the queue. From this point,
+Participants must qualify by signing in. See [contributor qualification spec](./contributor-identification.md). Once signed in, they may join the queue. From this point,
 the client should remain online until the contribution is complete. 
 
 The queue will be maintained by the coordinator. The queue will advance whenever a user completes their contribution or is determined to have left the queue.
 The latter will occur as a result of the client failing to check in at the required time. 
 
-Contributors who leave the queue may rejoin at a later stage. Contributors may contribute only once. 
+Contributors who leave the queue (and are detected as such by the coordinator) may not rejoin at a later stage. Contributors may contribute only once. 
 Individuals will not be prevented from rejoining under a different ID, subject to passing the anti-sybil tests.
 
 Transcripts for all sub-ceremonies will be collected and submitted together. A valid contribution requires all 4 contributions to pass validity tests.
