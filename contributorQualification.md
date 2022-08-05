@@ -48,15 +48,15 @@ To pass the assessment, the account will require a **nonce ≥ 3** on mainnet at
 
 ### Acceptance Criteria
 
-All GitHub accounts that pass GitHub OAuth will be accepted.
+GitHub accounts will be accepted if they have a commit dated prior to 1 August, 2022 00:00 UTC.
 
 ### Identifier
 The GitHub handle will be used as the identifier in the ceremony contribution record. 
 
 
-# Implementation Notes
+# Coordinator Handover
 
-The coordinator must remain responsible for evaluation accounts.
+Handover of the coordinator role will require continued access to the list of all accounts used thus far in the ceremony.
+During hadnover, the retiring coordinator must export a list of all identifiers, and the new coordinator must import the list.
 
-The planned handover of the coordinator role will entail continued access to the list of all accounts used thus far, along with their status. 
 
