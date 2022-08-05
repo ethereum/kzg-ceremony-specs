@@ -1,12 +1,11 @@
 ---
 swagger: "2.0"
 info:
-  title: Trusted Setup MPC
-  description: "Trusted Setup participant API.\nThis is a draft specification. It
-    is subject to change without notice. \n"
+  title: Trusted Setup MPC for KZG
+  description: Trusted Setup participant API.\
+  \ This is a draft specification. It \
+  \ is subject to change without notice. 
   termsOfService: tbd
-  contact:
-    email: gl@abc.com
   license:
     name: CC0
     url: http://creativecommons.org/publicdomain/zero/1.0/
@@ -76,10 +75,12 @@ paths:
     post:
       tags:
       - status
-      summary: Finds Pets by tags
-      description: Muliple tags can be provided with comma separated strings. Use\
-        \ tag1, tag2, tag3 for testing.
-      operationId: findPetsByTags
+      summary: Request queue status
+      description: Check-in with the coordinator, thus confirming\
+        \ the client's liveness. Response will include next check-in time, \
+        \ and a notification to start the contribution phase, if \
+        \ the paticipant is at the head of the queue.
+      operationId: queueStatus
       produces:
       - application/json
       parameters:
@@ -107,6 +108,11 @@ paths:
         server will verify the participant's eligibility to start, and, if eligible,
         return the last valid transcript.
       operationId: constributionStart
+      parameters:
+      - in: clientId
+        type: string
+      - in: computeEngineId
+        type: string
       produces:
       - application/json
       responses:
@@ -128,8 +134,8 @@ paths:
       - application/json
       parameters:
       - in: path
-        name: petId
-        description: ID of pet to update
+        name: xxx
+        description: cccc
         required: true
         format: int64
         type: integer
@@ -156,6 +162,13 @@ paths:
       description: Advises that the computation has completed and returns the updated
         transcript
       operationId: contributionComplete
+      parameters:
+      - in: transcript
+        name: transcript
+        description: JSON formatted transcript for all sub-ceremonies according \
+        \ the transcriptSchema.json schema reference
+        required: true
+        type: string
       produces:
       - application/json
       responses:
