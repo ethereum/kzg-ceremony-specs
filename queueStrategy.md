@@ -24,7 +24,7 @@ The queue will be maintained by the coordinator. The queue will advance whenever
 Contributors who leave the queue (and are detected as such by the coordinator) may not rejoin at a later stage. Contributors may contribute only once. 
 Individuals will not be prevented from rejoining under a different ID, subject to passing the anti-sybil tests.
 
-Submissions for all sub-ceremonies will be collected and submitted together. A valid contribution requires all 4 contributions to pass validity tests. (See [ transcript schema spec](./transcriptSchema.md)). 
+Submissions for all sub-ceremonies will be collected and submitted together. A valid contribution requires all 4 contributions to pass validity tests. (See [ transcript schema spec](./transcriptSchema.json)). 
 
 The coordinator will ensure that no more than a single contributor is contributing at any given time. `Contributing` here refers to the full life-cycle:
 - Passing the last valid transcript to the contributor
