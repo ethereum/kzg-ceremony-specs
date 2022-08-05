@@ -18,7 +18,7 @@ the client should remain online until the contribution is complete.
 
 The queue will be maintained by the coordinator. The queue will advance whenever:
 - a particpant completes their contribution, or
-- is determined to have left the queue This will occur if the client fails to check in by the deadline (see client api spec), or 
+- is determined to have left the queue This will occur if the client fails to check in by the deadline (see [client api spec](./client-api-spec.md)), or 
 - has taken too long to submit their contribution.  
 
 Contributors who leave the queue (and are detected as such by the coordinator) may not rejoin at a later stage. Contributors may contribute only once. 
@@ -26,7 +26,7 @@ Individuals will not be prevented from rejoining under a different ID, subject t
 
 Submissions for all sub-ceremonies will be collected and submitted together. A valid contribution requires all 4 contributions to pass validity tests. (See [spec]()). 
 
-The coordinator will ensure that no more than a single contributor is contributing at any given time. `Contributing` here means the full life-cycle:
+The coordinator will ensure that no more than a single contributor is contributing at any given time. `Contributing` here refers to the full life-cycle:
 - Passing the last valid transcript to the contributor
 - Waiting for the computation to be performed
 - Receiving the updated transcript
