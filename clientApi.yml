@@ -1,0 +1,327 @@
+---
+swagger: "2.0"
+info:
+  title: Trusted Setup MPC
+  description: "Trusted Setup participant API.\nThis is a draft specification. It
+    is subject to change without notice. \n"
+  termsOfService: tbd
+  contact:
+    email: gl@abc.com
+  license:
+    name: CC0
+    url: http://creativecommons.org/publicdomain/zero/1.0/
+  version: 1.0.0
+host: us-central1-trustedsetuptest.cloudfunctions.net
+basePath: ""
+schemes:
+- https
+- http
+paths:
+  /login:
+    post:
+      tags:
+      - login
+      summary: Login to begin participation
+      operationId: login
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - in: body
+        name: body
+        description: includes a message signed using the Ethereum standard signing
+          method
+        required: true
+        schema:
+          $ref: '#/definitions/AuthRequest'
+      responses:
+        200:
+          description: Successful login
+          schema:
+            $ref: '#/definitions/AuthResponse'
+        400:
+          description: Invalid request. Missing parameters
+        401:
+          description: Eth address doesn't match message signer, or account nonce
+            is too low
+        403:
+          description: Invalid HTTP method
+  /queue/join:
+    post:
+      tags:
+      - join
+      summary: Join a ceremony
+      description: Request to join the queue for a ceremony
+      operationId: joinCeremony
+      produces:
+      - application/json
+      parameters:
+      - in: body
+        name: participant
+        description: Participant joining the queue
+        required: true
+        schema:
+          $ref: '#/definitions/Participant'
+      responses:
+        200:
+          description: successful operation
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/ParticipantQueueStatus'
+        400:
+          description: Invalid status value
+  /queue/status:
+    post:
+      tags:
+      - status
+      summary: Finds Pets by tags
+      description: Muliple tags can be provided with comma separated strings. Use\
+        \ tag1, tag2, tag3 for testing.
+      operationId: findPetsByTags
+      produces:
+      - application/json
+      parameters:
+      - in: query
+        name: tags
+        description: Tags to filter by
+        required: true
+        collectionFormat: multi
+        items:
+          type: string
+        type: array
+      responses:
+        200:
+          description: successful operation
+          schema:
+            type: object
+        400:
+          description: Invalid tag value
+  /contribution/start:
+    post:
+      tags:
+      - contribute
+      summary: Request prior transcript and start contribution
+      description: Advises the participant's readiness to begin the computation. The
+        server will verify the participant's eligibility to start, and, if eligible,
+        return the last valid transcript.
+      operationId: constributionStart
+      produces:
+      - application/json
+      responses:
+        200:
+          description: successful operation
+          schema:
+            $ref: '#/definitions/ParticipantQueueStatus'
+        400:
+          description: Invalid ID supplied
+        404:
+          description: Pet not found
+  /contribution/status:
+    post:
+      tags:
+      - contribution status
+      summary: advises contribution status
+      operationId: contributionStatus
+      produces:
+      - application/json
+      parameters:
+      - in: path
+        name: petId
+        description: ID of pet to update
+        required: true
+        format: int64
+        type: integer
+      - in: formData
+        name: additionalMetadata
+        description: Additional data to pass to server
+        required: false
+        type: string
+      - in: formData
+        name: file
+        description: file to upload
+        required: false
+        type: file
+      responses:
+        200:
+          description: successful operation
+          schema:
+            $ref: '#/definitions/Contribution'
+  /contribution/complete:
+    post:
+      tags:
+      - contribution complete
+      summary: Returns a completed contribution
+      description: Advises that the computation has completed and returns the updated
+        transcript
+      operationId: contributionComplete
+      produces:
+      - application/json
+      responses:
+        200:
+          description: successful operation
+          schema:
+            type: object
+  /queue/leave:
+    post:
+      tags:
+      - contribution
+      summary: Request to leave the queue
+      description: Requests that the participant's queue position is given up. Only
+        valid for participants who have previously joiined the queue.
+      operationId: contributionLeave
+      produces:
+      - application/json
+      responses:
+        200:
+          description: successful operation
+          schema:
+            type: object
+  /ceremony/status:
+    get:
+      tags:
+      - ceremony status
+      summary: Request a summary of the cermeony status
+      operationId: ceremonyStatus
+      produces:
+      - application/json
+      parameters:
+      - in: body
+        name: body
+        description: order placed for purchasing the pet
+        required: true
+        schema:
+          $ref: '#/definitions/CeremonyStatus'
+      responses:
+        200:
+          description: successful operation
+          schema:
+            $ref: '#/definitions/CeremonyStatus'
+        400:
+          description: Invalid Order
+definitions:
+  ApiResponse:
+    type: object
+    properties:
+      code:
+        type: integer
+        format: int32
+      type:
+        type: string
+      message:
+        type: string
+  AuthResponse:
+    type: object
+    description: The response to a successful authorisation request is a JWT token.
+      This token must be retained and used in the header for all subsequent requests
+      requiring authentication. If the authorisation request is unsuccessful, the
+      response will be a brief message. Response codes are a better indication of
+      the status.
+    properties:
+      token:
+        type: string
+      participant:
+        type: object
+  AuthRequest:
+    type: object
+    description: A JSON object. The sig property must contain a hex represenation
+      of a message - 'ZKParty sign-in' - signed with the private key for ethAddress
+      using Ethereum standard signing (i.e. the message is prefixed by \x19Ethereum
+      Signed Message ...) The Eth account must have a nonce >= 3 on mainnet.
+    properties:
+      ethAddress:
+        type: string
+      sig:
+        type: string
+  Participant:
+    type: object
+    required:
+    - id
+    properties:
+      id:
+        type: string
+      idType:
+        type: string
+        enum:
+        - ethAddress
+        - ensName
+        - githubHandle
+  ParticipantQueueStatus:
+    type: object
+    required:
+    - id
+    - queueStatus
+    - nextCheckinTime
+    - queuePosition
+    description: Status of the participant's queue position, including details of
+      the next expected check-in time
+    properties:
+      id:
+        type: string
+      queueStatus:
+        type: string
+        enum:
+        - notQueued
+        - queued
+        - reqdyToContribute
+        - contributing
+        - expired
+      nextCheckinTime:
+        type: integer
+        format: int32
+      queuePosition:
+        type: integer
+        format: int32
+  HistoryEntry:
+    type: object
+    description: Particiant's contribution summary
+  Contribution:
+    type: object
+    required:
+    - g1Data
+    - g2Data
+    - history
+    description: The prior contributor's submission, ready to be updated
+    properties:
+      g1Data:
+        type: array
+        items:
+          type: string
+      g2Data:
+        type: array
+        items:
+          type: string
+      history:
+        type: array
+        items:
+          type: object
+          additionalProperties:
+            $ref: '#/definitions/HistoryEntry'
+  CeremonyStatus:
+    type: object
+    description: Overall ceremony summary metrics
+securityDefinitions:
+  auth_with_eth_account:
+    type: oauth2
+    flow: application
+    tokenUrl: https://us-central1-trustedsetuptest.cloudfunctions.net/Auth-Auth
+    scopes:
+      read:queue_entry: Get status details for own queue entry
+      read:contribution: Receive the prior contribution
+      write:queue_entry: Join or leave the contribution queue
+      write:contribution: Submit an updated contribution
+  auth_with_github:
+    type: apiKey
+    name: api_key
+    in: header
+tags:
+- name: login
+  description: Log in using an ethereum account
+  externalDocs:
+    description: Find out more
+    url: http://zkparty.live/
+externalDocs:
+  description: Find out more
+  url: http://zkparty.live/
+...
