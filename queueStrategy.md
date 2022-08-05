@@ -18,13 +18,13 @@ the client should remain online until the contribution is complete.
 
 The queue will be maintained by the coordinator. The queue will advance whenever:
 - a particpant completes their contribution, or
-- is determined to have left the queue This will occur if the client fails to check in by the deadline (see [client api spec](./client-api-spec.md)), or 
+- is determined to have left the queue This will occur if the client fails to check in by the deadline (see [client API spec](./clientApiSpec.md)), or 
 - has taken too long to submit their contribution.  
 
 Contributors who leave the queue (and are detected as such by the coordinator) may not rejoin at a later stage. Contributors may contribute only once. 
 Individuals will not be prevented from rejoining under a different ID, subject to passing the anti-sybil tests.
 
-Submissions for all sub-ceremonies will be collected and submitted together. A valid contribution requires all 4 contributions to pass validity tests. (See [spec]()). 
+Submissions for all sub-ceremonies will be collected and submitted together. A valid contribution requires all 4 contributions to pass validity tests. (See [ transcript spec](./transcriptSpec.md)). 
 
 The coordinator will ensure that no more than a single contributor is contributing at any given time. `Contributing` here refers to the full life-cycle:
 - Passing the last valid transcript to the contributor
@@ -32,3 +32,7 @@ The coordinator will ensure that no more than a single contributor is contributi
 - Receiving the updated transcript
 - Validation by the Coordinator
 - Notifying the next contributor to begin
+
+# Coordinator Handover
+
+Handover from one coordinator to another will occur at infrequent, planned intervals over the time span of the ceremony. To facilitate handover, the coordinator is able to stop accepting new entries to the queue, and to halt processing once the queue is exhausted and the last contribution completely processed. 
