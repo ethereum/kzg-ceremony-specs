@@ -37,7 +37,13 @@ The JWT will remain valid for the duration of the session, i.e. until the client
 
 ### Participant
 
-The participant first requests to join the queue (`queue/join`). The response will include these items:
+#### Request
+
+The participant first requests to join the queue (`queue/join`). 
+
+#### Response
+
+The response will include these items:
 
 - the participant’s status in the queue
 - the expected time at which to start
@@ -57,13 +63,26 @@ The coordinator will track individual participants, their position in the queue,
 
 The expected time to participate will be estimated based on the average round trip computation time (including verification) times the number of of waiters ahead in the queue. This will be recalculated with the latest data each time the participant checks in.
 
-The check-in deadline will start at 1 hour (i.e. hourly check-ins), or half the expected wait time, whichever is smaller. While the wait time is less than 1 hour, the deadline will be halved at each check-in call, to a minimum of 30 seconds. 
+The check-in deadline will start at 1 hour (i.e. hourly check-ins), or half the expected wait time, whichever is smaller. While the wait time is less than 1 hour, the deadline will be halved at each check-in call, to a minimum of 15 seconds. 
 
-For the participant currently computing their contribution, the coordinator must allow enough time for slow contributors to complete while enforcing on a deadline so as to abort failed or abandoned computations. The deadline will be 3 minutes. During this time, the participant at the head of the queue will poll at 30 second intervals until either the computation is completed or the deadline is reached. 
+For the participant currently computing their contribution, the coordinator must allow enough time for slow contributors to complete while enforcing on a deadline so as to abort failed or abandoned computations. The deadline will be 3 minutes. During this time, the participant at the head of the queue will poll at 15 second intervals until either the computation is completed or the deadline is reached. 
 
 ## The Computation Phase
 
-Participants will issue a `contribution/start` call to start the computation phase. The response will include the transcript from the latest valid contribution. The client is expected to begin computing with this without delay. Any time-consuming actions required to derive randomness should have been done prior.
+### Request
+
+Participants will issue a `contribution/start` call to start the computation phase. This request must be issued within 15 seconds of the `queue/status` response that notifies the contributor to begin.
+
+Any time-consuming actions required to derive randomness should have been done prior to sending this request, so that the contribution time is reduced to the minimum.
+
+The request may include an array of tags to identify:
+- the client implementation 
+- the computation implementation to be used
+
+### Response
+
+The response will include the transcript from the latest valid contribution. 
+
 
 Once the computation is complete, the updated transcript must be returned using a `contribution/complete` call. 
 
