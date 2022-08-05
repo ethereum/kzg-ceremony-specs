@@ -13,7 +13,7 @@ valid contributions. However, the ceremony requires a strict chain of contributi
 
 # Queue Protocol
 
-Participants must qualify by signing in. See [contributor qualification spec](./contributor-qualification.md). Once signed in, they may join the queue. From this point,
+Participants must qualify by signing in. See [contributor qualification spec](./contributorQualification.md). Once signed in, they may join the queue. From this point,
 the client should remain online until the contribution is complete. 
 
 The queue will be maintained by the coordinator. The queue will advance whenever:
