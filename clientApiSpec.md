@@ -96,5 +96,5 @@ Once the contribution has been returned, the client may perform additional tasks
 - Capture and display of the contribution signatures.
 - Submitting an attestation
 
-These actions are not mandatory, and are not part of this protocol.
+These actions are not mandatory, although strongly recommended.
 
