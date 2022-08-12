@@ -1,5 +1,5 @@
 ---
-swagger: "2.0"
+openapi: 3.0.0
 info:
   title: Trusted Setup MPC for KZG
   description: |
@@ -8,61 +8,63 @@ info:
     name: CC0
     url: http://creativecommons.org/publicdomain/zero/1.0/
   version: 1.0.0
-  x-oas_version: 3.0.0
-host: us-central1-trustedsetuptest.cloudfunctions.net
-basePath: ""
-schemes:
-- https
-- http
+servers:
+- url: https://us-central1-trustedsetuptest.cloudfunctions.net
 paths:
   /login:
     post:
       tags:
       - login
       summary: Login to begin participation
-      consumes:
-      - application/json
-      produces:
-      - application/json
-      parameters:
-      - in: body
-        schema:
-          $ref: '#/definitions/AuthRequest'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthRequest'
       responses:
         200:
           description: Successful login
-          schema:
-            $ref: '#/definitions/AuthResponse'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
         400:
           description: Invalid request. Missing parameters
+          content:
+            application/json: []
         401:
           description: |
             Eth address doesn't match message signer, or account nonce is too low
+          content:
+            application/json: []
         403:
           description: Invalid HTTP method
+          content:
+            application/json: []
   /queue/join:
     post:
       tags:
       - join
       summary: Join a ceremony
       description: Request to join the queue for a ceremony
-      consumes:
-      - application/json
-      produces:
-      - application/json
-      parameters:
-      - in: body
-        schema:
-          $ref: '#/definitions/Participant'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Participant'
       responses:
         200:
           description: successful operation
-          schema:
-            type: array
-            items:
-              $ref: '#/definitions/ParticipantQueueStatus'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ParticipantQueueStatus'
         400:
           description: Invalid status value
+          content:
+            application/json: []
   /queue/status:
     post:
       tags:
@@ -72,23 +74,24 @@ paths:
         liveness. Response will include next check-in time, \ \ and a notification
         to start the contribution phase, if \ \ the paticipant is at the head of the
         queue.
-      consumes:
-      - application/json
-      produces:
-      - application/json
-      parameters:
-      - in: body
+      requestBody:
         description: Check in and request my queue status
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ParticipantQueueStatus'
         required: true
-        schema:
-          $ref: '#/definitions/ParticipantQueueStatus'
       responses:
         200:
           description: successful operation
-          schema:
-            type: object
+          content:
+            application/json:
+              schema:
+                type: object
         400:
           description: Invalid tag value
+          content:
+            application/json: []
   /contribution/start:
     post:
       tags:
@@ -97,42 +100,44 @@ paths:
       description: Advises the participant's readiness to begin the computation. The
         server will verify the participant's eligibility to start, and, if eligible,
         return the last valid transcript.
-      consumes:
-      - application/json
-      produces:
-      - application/json
-      parameters:
-      - in: body
-        schema:
-          $ref: '#/definitions/Participant'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Participant'
       responses:
         200:
           description: successful operation
-          schema:
-            $ref: '#/definitions/Participant'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Participant'
         400:
           description: Invalid ID supplied
+          content:
+            application/json: []
         404:
           description: ID not found
+          content:
+            application/json: []
   /contribution/status:
     post:
       tags:
       - contribution status
       summary: Advises contribution status. Can be used to advise of an error after
         contribution has started.
-      consumes:
-      - application/json
-      produces:
-      - application/json
-      parameters:
-      - in: body
-        schema:
-          $ref: '#/definitions/Participant'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Participant'
       responses:
         200:
           description: successful operation
-          schema:
-            $ref: '#/definitions/ContributionStatus'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContributionStatus'
   /contribution/complete:
     post:
       tags:
@@ -140,19 +145,18 @@ paths:
       summary: Returns a completed contribution
       description: Advises that the computation has completed and returns the updated
         transcript
-      consumes:
-      - application/json
-      produces:
-      - application/json
-      parameters:
-      - in: body
-        schema:
-          $ref: '#/definitions/Contribution'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Contribution'
       responses:
         200:
           description: successful operation
-          schema:
-            type: string
+          content:
+            application/json:
+              schema:
+                type: string
   /queue/leave:
     post:
       tags:
@@ -160,168 +164,170 @@ paths:
       summary: Request to leave the queue
       description: |
         Requests that the participant's queue position is given up. Only valid for participants who have previously joiined the queue.
-      consumes:
-      - application/json
-      produces:
-      - application/json
-      parameters:
-      - in: body
-        schema:
-          $ref: '#/definitions/Participant'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Participant'
       responses:
         200:
           description: successful operation
-          schema:
-            type: object
+          content:
+            application/json:
+              schema:
+                type: object
   /ceremony/status:
     get:
       tags:
       - ceremony status
       summary: Request a summary of the ceremony status
-      consumes:
-      - application/json
-      produces:
-      - application/json
-      parameters:
-      - in: body
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CeremonyStatus'
         required: true
-        schema:
-          $ref: '#/definitions/CeremonyStatus'
       responses:
         200:
           description: successful operation
-          schema:
-            $ref: '#/definitions/CeremonyStatus'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CeremonyStatus'
         400:
           description: Invalid Order
+          content:
+            application/json: []
       security:
       - authWithEth: []
-definitions:
-  ContributionResult:
-    type: object
-    required:
-    - id
-    description: |
-      The updated SRS
-    properties:
-      contribution:
-        type: object
-      id:
-        type: string
-  ApiResponse:
-    type: object
-    properties:
-      code:
-        type: integer
-        format: int32
-      type:
-        type: string
-      message:
-        type: string
-  AuthResponse:
-    type: object
-    description: |
-      The response to a successful authorisation request is a JWT token. This token must be retained and used in the header for all subsequent requests requiring authentication. If the  authorisation request is unsuccessful, the response will be a brief message. Response codes are a better indication of the status.
-    properties:
-      token:
-        type: string
-      participant:
-        type: object
-  AuthRequest:
-    type: object
-    description: |
-      A JSON object. The sig property must contain a hex represenation of a message - 'ZKParty sign-in' - signed with the private key for ethAddress using Ethereum standard signing (i.e. the  message is prefixed by \x19Ethereum Signed Message ...) The Eth account must have a nonce >= 3 on mainnet.
-    properties:
-      ethAddress:
-        type: string
-      sig:
-        type: string
-  ParticipantQueueStatus:
-    type: object
-    required:
-    - id
-    - queueStatus
-    - nextCheckinTime
-    - queuePosition
-    description: |
-      Status of the participant's queue position, including details of the next expected check-in time
-    properties:
-      id:
-        type: string
-      queueStatus:
-        type: string
-        enum:
-        - notQueued
-        - queued
-        - readyToContribute
-        - contributing
-        - expired
-      nextCheckinTime:
-        type: integer
-        format: int32
-      queuePosition:
-        type: integer
-        format: int32
-  ContributionStatus:
-    type: object
-    required:
-    - id
-    description: |
-      Used to report an error while in the computation phase
-    properties:
-      reason:
-        type: string
-      id:
-        type: string
-  HistoryEntry:
-    type: object
-    description: Particiant's contribution summary
-  Contribution:
-    type: object
-    required:
-    - g1Data
-    - g2Data
-    - history
-    description: The prior contributor's submission, ready to be updated
-    properties:
-      g1Data:
-        type: array
-        items:
-          type: string
-      g2Data:
-        type: array
-        items:
-          type: string
-      history:
-        type: array
-        items:
+components:
+  schemas:
+    ContributionResult:
+      required:
+      - id
+      type: object
+      description: |
+        The updated SRS
+      properties:
+        contribution:
           type: object
-          additionalProperties:
-            $ref: '#/definitions/HistoryEntry'
-  Participant:
-    type: object
-    required:
-    - id
-    properties:
-      id:
-        type: string
-      idType:
-        type: string
-        enum:
-        - ethAddress
-        - ensName
-        - githubHandle
-  CeremonyStatus:
-    type: object
-    description: Overall ceremony summary metrics
-securityDefinitions:
-  authWithEth:
-    type: oauth2
-    description: Firebase OAuth
-    flow: application
-    authorizationUrl: https://us-central1-trustedsetuptest.cloudfunctions.net/Auth-Auth
-  authWithGithub:
-    type: apiKey
-    name: API_KEY
-    in: header
+        id:
+          type: string
+    ApiResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        type:
+          type: string
+        message:
+          type: string
+    AuthResponse:
+      type: object
+      description: |
+        The response to a successful authorisation request is a JWT token. This token must be retained and used in the header for all subsequent requests requiring authentication. If the  authorisation request is unsuccessful, the response will be a brief message. Response codes are a better indication of the status.
+      properties:
+        token:
+          type: string
+        participant:
+          type: object
+    AuthRequest:
+      type: object
+      description: |
+        A JSON object. The sig property must contain a hex represenation of a message - 'ZKParty sign-in' - signed with the private key for ethAddress using Ethereum standard signing (i.e. the  message is prefixed by \x19Ethereum Signed Message ...) The Eth account must have a nonce >= 3 on mainnet.
+      properties:
+        ethAddress:
+          type: string
+        sig:
+          type: string
+    ParticipantQueueStatus:
+      required:
+      - id
+      - queueStatus
+      - nextCheckinTime
+      - queuePosition
+      type: object
+      description: |
+        Status of the participant's queue position, including details of the next expected check-in time
+      properties:
+        id:
+          type: string
+        queueStatus:
+          type: string
+          enum:
+          - notQueued
+          - queued
+          - readyToContribute
+          - contributing
+          - expired
+        nextCheckinTime:
+          type: integer
+          format: int32
+        queuePosition:
+          type: integer
+          format: int32
+    ContributionStatus:
+      required:
+      - id
+      type: object
+      description: |
+        Used to report an error while in the computation phase
+      properties:
+        reason:
+          type: string
+        id:
+          type: string
+    HistoryEntry:
+      type: object
+      description: Particiant's contribution summary
+    Contribution:
+      required:
+      - g1Data
+      - g2Data
+      - history
+      type: object
+      description: The prior contributor's submission, ready to be updated
+      properties:
+        g1Data:
+          type: array
+          items:
+            type: string
+        g2Data:
+          type: array
+          items:
+            type: string
+        history:
+          type: array
+          items:
+            type: object
+            additionalProperties:
+              $ref: '#/components/schemas/HistoryEntry'
+    Participant:
+      required:
+      - id
+      type: object
+      properties:
+        id:
+          type: string
+        idType:
+          type: string
+          enum:
+          - ethAddress
+          - ensName
+          - githubHandle
+    CeremonyStatus:
+      type: object
+      description: Overall ceremony summary metrics
+  securitySchemes:
+    authWithEth:
+      type: oauth2
+      description: Firebase OAuth
+      flows:
+        clientCredentials:
+          authorizationUrl: https://us-central1-trustedsetuptest.cloudfunctions.net/Auth-Auth
+    authWithGithub:
+      type: apiKey
+      name: API_KEY
+      in: header
 ...
