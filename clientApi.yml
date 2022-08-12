@@ -4,7 +4,7 @@ info:
   title: Trusted Setup MPC for KZG
   description: Trusted Setup participant API.\
   \ This is a draft specification. It \
-  \ is subject to change without notice. 
+  \ is subject to change without notice. \
   termsOfService: tbd
   license:
     name: CC0
@@ -123,7 +123,7 @@ paths:
         400:
           description: Invalid ID supplied
         404:
-          description: Pet not found
+          description: ID not found
   /contribution/status:
     post:
       tags:
@@ -202,7 +202,7 @@ paths:
       parameters:
       - in: body
         name: body
-        description: order placed for purchasing the pet
+        description: check-in and request status
         required: true
         schema:
           $ref: '#/definitions/CeremonyStatus'
