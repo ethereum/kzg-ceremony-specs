@@ -2,14 +2,13 @@
 swagger: "2.0"
 info:
   title: Trusted Setup MPC for KZG
-  description: Trusted Setup participant API.\
-  \ This is a draft specification. It \
-  \ is subject to change without notice. \
-  termsOfService: tbd
+  description: |
+    Trusted Setup participant API.  This is a draft specification. It is subject to change without notice.
   license:
     name: CC0
     url: http://creativecommons.org/publicdomain/zero/1.0/
   version: 1.0.0
+  x-oas_version: 3.0.0
 host: us-central1-trustedsetuptest.cloudfunctions.net
 basePath: ""
 schemes:
@@ -21,17 +20,12 @@ paths:
       tags:
       - login
       summary: Login to begin participation
-      operationId: login
       consumes:
       - application/json
       produces:
       - application/json
       parameters:
       - in: body
-        name: body
-        description: includes a message signed using the Ethereum standard signing
-          method
-        required: true
         schema:
           $ref: '#/definitions/AuthRequest'
       responses:
@@ -42,8 +36,8 @@ paths:
         400:
           description: Invalid request. Missing parameters
         401:
-          description: Eth address doesn't match message signer, or account nonce
-            is too low
+          description: |
+            Eth address doesn't match message signer, or account nonce is too low
         403:
           description: Invalid HTTP method
   /queue/join:
@@ -52,14 +46,12 @@ paths:
       - join
       summary: Join a ceremony
       description: Request to join the queue for a ceremony
-      operationId: joinCeremony
+      consumes:
+      - application/json
       produces:
       - application/json
       parameters:
       - in: body
-        name: participant
-        description: Participant joining the queue
-        required: true
         schema:
           $ref: '#/definitions/Participant'
       responses:
@@ -76,22 +68,20 @@ paths:
       tags:
       - status
       summary: Request queue status
-      description: Check-in with the coordinator, thus confirming\
-        \ the client's liveness. Response will include next check-in time, \
-        \ and a notification to start the contribution phase, if \
-        \ the paticipant is at the head of the queue.
-      operationId: queueStatus
+      description: Check-in with the coordinator, thus confirming\ \ the client's
+        liveness. Response will include next check-in time, \ \ and a notification
+        to start the contribution phase, if \ \ the paticipant is at the head of the
+        queue.
+      consumes:
+      - application/json
       produces:
       - application/json
       parameters:
-      - in: query
-        name: tags
-        description: Tags to filter by
+      - in: body
+        description: Check in and request my queue status
         required: true
-        collectionFormat: multi
-        items:
-          type: string
-        type: array
+        schema:
+          $ref: '#/definitions/ParticipantQueueStatus'
       responses:
         200:
           description: successful operation
@@ -107,19 +97,19 @@ paths:
       description: Advises the participant's readiness to begin the computation. The
         server will verify the participant's eligibility to start, and, if eligible,
         return the last valid transcript.
-      operationId: constributionStart
-      parameters:
-      - in: clientId
-        type: string
-      - in: computeEngineId
-        type: string
+      consumes:
+      - application/json
       produces:
       - application/json
+      parameters:
+      - in: body
+        schema:
+          $ref: '#/definitions/Participant'
       responses:
         200:
           description: successful operation
           schema:
-            $ref: '#/definitions/ParticipantQueueStatus'
+            $ref: '#/definitions/Participant'
         400:
           description: Invalid ID supplied
         404:
@@ -128,32 +118,21 @@ paths:
     post:
       tags:
       - contribution status
-      summary: advises contribution status
-      operationId: contributionStatus
+      summary: Advises contribution status. Can be used to advise of an error after
+        contribution has started.
+      consumes:
+      - application/json
       produces:
       - application/json
       parameters:
-      - in: path
-        name: xxx
-        description: cccc
-        required: true
-        format: int64
-        type: integer
-      - in: formData
-        name: additionalMetadata
-        description: Additional data to pass to server
-        required: false
-        type: string
-      - in: formData
-        name: file
-        description: file to upload
-        required: false
-        type: file
+      - in: body
+        schema:
+          $ref: '#/definitions/Participant'
       responses:
         200:
           description: successful operation
           schema:
-            $ref: '#/definitions/Contribution'
+            $ref: '#/definitions/ContributionStatus'
   /contribution/complete:
     post:
       tags:
@@ -161,31 +140,34 @@ paths:
       summary: Returns a completed contribution
       description: Advises that the computation has completed and returns the updated
         transcript
-      operationId: contributionComplete
-      parameters:
-      - in: transcript
-        name: transcript
-        description: JSON formatted transcript for all sub-ceremonies according \
-        \ the transcriptSchema.json schema reference
-        required: true
-        type: string
+      consumes:
+      - application/json
       produces:
       - application/json
+      parameters:
+      - in: body
+        schema:
+          $ref: '#/definitions/Contribution'
       responses:
         200:
           description: successful operation
           schema:
-            type: object
+            type: string
   /queue/leave:
     post:
       tags:
       - contribution
       summary: Request to leave the queue
-      description: Requests that the participant's queue position is given up. Only
-        valid for participants who have previously joiined the queue.
-      operationId: contributionLeave
+      description: |
+        Requests that the participant's queue position is given up. Only valid for participants who have previously joiined the queue.
+      consumes:
+      - application/json
       produces:
       - application/json
+      parameters:
+      - in: body
+        schema:
+          $ref: '#/definitions/Participant'
       responses:
         200:
           description: successful operation
@@ -195,14 +177,13 @@ paths:
     get:
       tags:
       - ceremony status
-      summary: Request a summary of the cermeony status
-      operationId: ceremonyStatus
+      summary: Request a summary of the ceremony status
+      consumes:
+      - application/json
       produces:
       - application/json
       parameters:
       - in: body
-        name: body
-        description: check-in and request status
         required: true
         schema:
           $ref: '#/definitions/CeremonyStatus'
@@ -213,7 +194,20 @@ paths:
             $ref: '#/definitions/CeremonyStatus'
         400:
           description: Invalid Order
+      security:
+      - authWithEth: []
 definitions:
+  ContributionResult:
+    type: object
+    required:
+    - id
+    description: |
+      The updated SRS
+    properties:
+      contribution:
+        type: object
+      id:
+        type: string
   ApiResponse:
     type: object
     properties:
@@ -226,11 +220,8 @@ definitions:
         type: string
   AuthResponse:
     type: object
-    description: The response to a successful authorisation request is a JWT token.
-      This token must be retained and used in the header for all subsequent requests
-      requiring authentication. If the authorisation request is unsuccessful, the
-      response will be a brief message. Response codes are a better indication of
-      the status.
+    description: |
+      The response to a successful authorisation request is a JWT token. This token must be retained and used in the header for all subsequent requests requiring authentication. If the  authorisation request is unsuccessful, the response will be a brief message. Response codes are a better indication of the status.
     properties:
       token:
         type: string
@@ -238,28 +229,13 @@ definitions:
         type: object
   AuthRequest:
     type: object
-    description: A JSON object. The sig property must contain a hex represenation
-      of a message - 'ZKParty sign-in' - signed with the private key for ethAddress
-      using Ethereum standard signing (i.e. the message is prefixed by \x19Ethereum
-      Signed Message ...) The Eth account must have a nonce >= 3 on mainnet.
+    description: |
+      A JSON object. The sig property must contain a hex represenation of a message - 'ZKParty sign-in' - signed with the private key for ethAddress using Ethereum standard signing (i.e. the  message is prefixed by \x19Ethereum Signed Message ...) The Eth account must have a nonce >= 3 on mainnet.
     properties:
       ethAddress:
         type: string
       sig:
         type: string
-  Participant:
-    type: object
-    required:
-    - id
-    properties:
-      id:
-        type: string
-      idType:
-        type: string
-        enum:
-        - ethAddress
-        - ensName
-        - githubHandle
   ParticipantQueueStatus:
     type: object
     required:
@@ -267,8 +243,8 @@ definitions:
     - queueStatus
     - nextCheckinTime
     - queuePosition
-    description: Status of the participant's queue position, including details of
-      the next expected check-in time
+    description: |
+      Status of the participant's queue position, including details of the next expected check-in time
     properties:
       id:
         type: string
@@ -277,7 +253,7 @@ definitions:
         enum:
         - notQueued
         - queued
-        - reqdyToContribute
+        - readyToContribute
         - contributing
         - expired
       nextCheckinTime:
@@ -286,6 +262,17 @@ definitions:
       queuePosition:
         type: integer
         format: int32
+  ContributionStatus:
+    type: object
+    required:
+    - id
+    description: |
+      Used to report an error while in the computation phase
+    properties:
+      reason:
+        type: string
+      id:
+        type: string
   HistoryEntry:
     type: object
     description: Particiant's contribution summary
@@ -311,30 +298,30 @@ definitions:
           type: object
           additionalProperties:
             $ref: '#/definitions/HistoryEntry'
+  Participant:
+    type: object
+    required:
+    - id
+    properties:
+      id:
+        type: string
+      idType:
+        type: string
+        enum:
+        - ethAddress
+        - ensName
+        - githubHandle
   CeremonyStatus:
     type: object
     description: Overall ceremony summary metrics
 securityDefinitions:
-  auth_with_eth_account:
+  authWithEth:
     type: oauth2
+    description: Firebase OAuth
     flow: application
-    tokenUrl: https://us-central1-trustedsetuptest.cloudfunctions.net/Auth-Auth
-    scopes:
-      read:queue_entry: Get status details for own queue entry
-      read:contribution: Receive the prior contribution
-      write:queue_entry: Join or leave the contribution queue
-      write:contribution: Submit an updated contribution
-  auth_with_github:
+    authorizationUrl: https://us-central1-trustedsetuptest.cloudfunctions.net/Auth-Auth
+  authWithGithub:
     type: apiKey
-    name: api_key
+    name: API_KEY
     in: header
-tags:
-- name: login
-  description: Log in using an ethereum account
-  externalDocs:
-    description: Find out more
-    url: http://zkparty.live/
-externalDocs:
-  description: Find out more
-  url: http://zkparty.live/
 ...
