@@ -14,14 +14,14 @@ We are performing a ceremony to generate Powers of Tau for KZG proofs on Ethereu
 
 Due to a lack of standardisation for a complete API for BLS curves, we define our own in [BLS.md](/BLS.md).
 
-## `transcript.json`
+## `contribution.json`
 
-Due to the simplicity of this PoT setup, the full transcript is sent as a json file between the coordinator & participants. This allows the use of a RESTful API between the two and verification of certain aspects of the `transcript.json` file via the [transcriptSchema.json](./transcriptSchema.json) [JSON schema](https://json-schema.org/).
+Due to the simplicity of this PoT setup, the full contribution is sent as a json file between the coordinator & participants. This allows the use of a RESTful API between the two and verification of certain aspects of the `contribution.json` file via the [contributionSchema.json](./contributionSchema.json) [JSON schema](https://json-schema.org/).
 
 
-## `Transcript` object
+## `Contribution` object
 
-A `Transcript` object it defined for ease of specification the structure of which is identical to that of the `transcript.json`.
+We define a `Contribution` object for ease of specification the structure of which is identical to that of the `initialContribution.json`.
 
 ### `PowersOfTau`
 
@@ -31,35 +31,27 @@ class PowersOfTau:
     g1_powers: List[bls.G1Point]
     g2_powers: List[bls.G2Point]
 ```
-### `Witness`
+
+### `SubContribution`
 
 ```python
 @dataclass
-class Witness:
-    running_products: List[bls.G1Point]
-    pot_pubkeys: List[bls.G2Point]
-```
-
-### `SubCeremony`
-
-```python
-@dataclass
-class SubCeremony:
+class SubContribution:
     num_g1_powers: int
     num_g2_powers: int
     powers_of_tau: PowersOfTau
-    witness: Witness
+    pot_pubkey: bls.G2Point
 ```
 
-### `Transcript`
+### `Contribution`
 
 ```python
 @dataclass
-class Transcript
-    sub_ceremonies: List[SubCeremony]
+class Contribution
+    sub_contribution: List[SubContribution]
 ```
 
 ## Initialization
 
-The ceremony is initialized to [initialtranscript.json](./initialtranscript.json).
+The ceremony is initialized to [initialContribution.json](./initialContribution.json).
 

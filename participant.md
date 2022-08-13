@@ -1,6 +1,6 @@
 # Participant
 
-A participatooor downloads the transcript from the coordinator, mixes their local randomness into the SRS and returns the transcript to the coordinator who then verifies that the contributor did not contribute in a malicious* manner.
+A participatooor downloads the contribution file from the coordinator, mixes their local randomness into the SRS and returns the contribution to the coordinator who then verifies that the contributor did not contribute in a malicious* manner.
 
 ## Generating randomness
 
@@ -11,8 +11,7 @@ The participant MUST generate 4 different secrets from a _cryptographically-secu
 Each secret MUST meet the following requirements:
 - Sourced from a CSPRNG
 - Contain at least 255 bits of entropy
-- Be different from the other 3 secrets
-- Be different from all the other secrets in the transcript
+- Be different from the other 3 secrets used in the other sub-ceremonies
 - Be cleared from memory after the contribution is complete
 
 Furthermore, each secret SHOULD meet the following requirements:
@@ -26,22 +25,22 @@ A good method for meeting the above requirements would be to make use of the `Ke
 
 ### Reserving a slot
 
-### Downloading the transcript
+### Downloading the contribution file
 
-### Verifying the transcript
+### Verifying the contribution file
 
 In order to ensure that the coordinator is not tricking a participant into leaking some of the entropy they are contributing, the participant SHOULD perform the following checks:
 
 
-#### Transcript structure:
+#### Contribution file structure:
 
-- __Schema Check__ - Verify that the received `transcript.json` matches the `transcriptSchema.json` schema.
+- __Schema Check__ - Verify that the received `contribution.json` matches the `contributionSchema.json` schema.
 ```python
-def schema_check(transcript_json: str, schema_path: str) -> bool:
+def schema_check(contribution_json: str, schema_path: str) -> bool:
     with open(schema_path) as schema_file:
         schema = json.load(schema_file)
         try:
-            jsonschema.validate(transcript_json, schema)
+            jsonschema.validate(contribution_json, schema)
             return True
         except Exception:
             pass
@@ -53,67 +52,63 @@ def schema_check(transcript_json: str, schema_path: str) -> bool:
 - Subgroup checks
     - __G1 Powers Subgroup check__ - For each of the $\mathbb{G}_1$ Powers of Tau (`g1_powers`), verify that they are actually elements of the subgroup.
     - __G2 Powers Subgroup check__ - For each of the $\mathbb{G}_2$ Powers of Tau (`g2_powers`), verify that they are actually elements of the subgroup.
-    - __Running Product Subgroup check__ - Check that the last running product (the one the participant will interact with) is an element of the subgroup.
 
 ```python
-def subgroup_checks(transcript: Transcript) -> bool:
-    for sub_ceremony in transcript.sub_ceremonies:
-        if not all(bls.G1.is_on_curve(P) for P in sub_ceremony.powers_of_tau.g1_powers):
+def subgroup_checks(contribution: Contribution) -> bool:
+    for sub_contribution in contribution.sub_contributions:
+        if not all(bls.G1.is_on_curve(P) for P in sub_contribution.powers_of_tau.g1_powers):
             return False
-        if not all(bls.G2.is_on_curve(P) for P in sub_ceremony.powers_of_tau.g2_powers):
-            return False
-        if not bls.G1.is_on_curve(sub_ceremony.witness.running_products[:-1]):
+        if not all(bls.G2.is_on_curve(P) for P in sub_contribution.powers_of_tau.g2_powers):
             return False
     return True
 ```
 
-### Updating the transcript
+### Updating the contribution file
 
-Once the participant has fetched the `transcript.json` file, for each of the `SubCeremonies`s within they MUST perform the following actions:
+Once the participant has fetched the `contribution.json` file, for each of the `SubCeremonies`s within they MUST perform the following actions:
 
 - Generate the secrets:
     - Sample a secret `x` from their CSPRNG as per Generating randomness above
 - Update Powers of Tau
-    - Multiply each of the `powers_of_tau.g1_powers` by incremental powers of `x` and overwrite the `powers_of_tau.g1_powers` in the transcript
-    - Multiply each of the `powers_of_tau.g2_powers` by incremental powers of `x` and overwrite the `powers_of_tau.g2_powers` in the transcript
+    - Multiply each of the `powers_of_tau.g1_powers` by incremental powers of `x` and overwrite the `powers_of_tau.g1_powers` in the contribution
+    - Multiply each of the `powers_of_tau.g2_powers` by incremental powers of `x` and overwrite the `powers_of_tau.g2_powers` in the contribution
+
 ```python
-def update_powers_of_tau(sub_ceremony: SubCeremony, x: int) -> SubCeremony:
+def update_powers_of_tau(sub_contribution: SubCeremony, x: int) -> SubCeremony:
     '''
-    Updates the Powers of Tau within a transcript by multiplying each with a successive power of the secret x.
+    Updates the Powers of Tau within a sub-ceremony by multiplying each with a successive power of the secret x.
     '''
     x_i = 1
-    for i in range(sub_ceremony.num_g1_powers):
+    for i in range(sub_contribution.num_g1_powers):
         # Update G1 Powers
-        sub_ceremony.powers_of_tau.g1_powers[i] = bls.G1.mul(x_1, sub_ceremony.powers_of_tau.g1_powers[i])
+        sub_contribution.powers_of_tau.g1_powers[i] = bls.G1.mul(x_1, sub_contribution.powers_of_tau.g1_powers[i])
         # Update G2 Powers
-        if i < sub_ceremony.num_g2_powers:
-            sub_ceremony.powers_of_tau.g2_powers[i] = bls.G2.mul(x_1, sub_ceremony.powers_of_tau.g2_powers[i])
+        if i < sub_contribution.num_g2_powers:
+            sub_contribution.powers_of_tau.g2_powers[i] = bls.G2.mul(x_1, sub_contribution.powers_of_tau.g2_powers[i])
         x_i = (x_i * x) % bls.r
-    return sub_ceremony
+    return sub_contribution
 ```
+
 - Update Witness
-    - Multiply `witness.running_products[-1]` by `x` and append it to the `witness.running_products` list.
-    - Append `bls.G2.mul(x, bls.G2.g2)` to `witness.pot_pubkeys`
+    - Set `sub_contribution.pot_pubkey` to `bls.G2.mul(x, bls.G2.g2)`
+
 ```python
-def update_witness(sub_ceremony: SubCeremony, x: int) -> SubCeremony:
-    new_product = bls.G1.mul(x, sub_ceremony.witness.running_products[-1])
-    sub_ceremony.witness.running_products.append(new_product)
-    new_pk = bls.G2.mul(x, bls.G2.g2)
-    sub_ceremony.witness.pot_pubkeys.append(new_pk)
-    return sub_ceremony
+def update_witness(sub_contribution: SubCeremony, x: int) -> SubCeremony:
+    sub_contribution.pot_pubkey = bls.G2.mul(x, bls.G2.g2)
+    return sub_contribution
 ```
 
 
 ```python
-def update_transcript(transcript: Transcript) -> Transcript:
-    for sub_ceremony in transcript.sub_ceremonies:
+def contribute(contributionFile: Contribution) -> Contribution:
+    for sub_contribution in contributionFile.sub_contributions:
         x = randbelow(bls.r)
-        sub_ceremony = update_powers_of_tau(sub_ceremony, x)
-        sub_ceremony = update_witness(sub_ceremony, x)
+        sub_contribution = update_powers_of_tau(sub_contribution, x)
+        sub_contribution = update_witness(sub_contribution, x)
         del x
-    return transcript
+    return contributionFile
 ```
 
 ### Clearing the memory
 
-### Uploading the transcript
+### Uploading the contribution file

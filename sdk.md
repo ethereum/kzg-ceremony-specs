@@ -23,42 +23,36 @@ interface PowersOfTau{
     g2_powers: string[]
 }
 ```
-```typescript
-interface Witness{
-    running_products: string[]
-    pot_pubkeys: string[]
-}
-```
 
 ```typescript
-interface SubCeremony{
+interface SubContribution{
     num_g1_powers: number
     num_g2_powers: number
     powers_of_tau: PowersOfTau
-    witness: Witness
+    pot_pubkey?: string
 }
 ```
 
 ```typescript
-interface Transcript {
-    sub_ceremonies: SubCeremony[]
+interface Contribution {
+    sub_contributions: SubContribution[]
 }
 ```
 
-### `updateTranscript`
+### `contribute`
 
-This function takes in a `Transcript` object and a list of hex-encoded `secrets[]` and returns a new `Transcript` according to the method specified in [`participant.md`](./participant.md). Note that this function does not perform the required subgroup checks, instead it is expected that this will be done separately via the `transcriptSubgroupCheck` function.
+This function takes in a `Contribution` object and a list of hex-encoded `secrets[]` and returns a new `Contribution` according to the method specified in [`participant.md`](./participant.md). Note that this function __does not perform the recommended subgroup checks__, instead it is expected that this will be done separately via the `checkContribution` function. `contribute()` will raise an `Error` should it fail to deserialise and of the strings or otherwise not be able to proceed.
 
 ```typescript
-function updateTranscript(oldTranscript: Transcript, secrets: string[]): Transcript {
+function contribute(contribution: Contribution, secrets: string[]): Contribution {
 }
 ```
 
-### `transcriptSubgroupCheck`
+### `checkContribution`
 
-This function performs the subgroup checks as described in [`participant.md`](./participant.md). Should all the subgroup checks in every transcript pass, this function returns `true`.
+This function performs the subgroup checks as described in [`participant.md`](./participant.md). Should all the subgroup checks in the contribution pass, this function returns `true`.
 
 ```typescript
-function transcriptSubgroupCheck(transcript: Transcript): boolean {
+function checkContribution(contribution: Contribution): boolean {
 }
 ```
