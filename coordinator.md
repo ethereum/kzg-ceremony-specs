@@ -23,21 +23,21 @@ def schema_check(transcript_json: str, schema_path: str) -> bool:
 
 ### Point Checks
 
-- Subgroup checks
-    - __G1 Powers Subgroup check__ - For each of the $\mathbb{G}_1$ Powers of Tau (`g1_powers`), verify that they are actually elements of the subgroup.
-    - __G2 Powers Subgroup check__ - For each of the $\mathbb{G}_2$ Powers of Tau (`g2_powers`), verify that they are actually elements of the subgroup.
-    - __Witness Subgroup checks__ - For each of the points in `witness`, check that they are actually elements of their respective subgroups.
+- Prime Subgroup checks
+    - __G1 Powers Subgroup check__ - For each of the $\mathbb{G}_1$ Powers of Tau (`g1_powers`), verify that they are actually elements of the prime-ordered subgroup.
+    - __G2 Powers Subgroup check__ - For each of the $\mathbb{G}_2$ Powers of Tau (`g2_powers`), verify that they are actually elements of the prime-ordered subgroup.
+    - __Witness Subgroup checks__ - For each of the points in `witness`, check that they are actually elements of their respective prime-ordered subgroups.
 
 ```python
 def subgroup_checks(transcript: Transcript) -> bool:
     for sub_ceremony in transcript.sub_ceremonies:
-        if not all(bls.G1.is_in_G1(P) for P in sub_ceremony.powers_of_tau.g1_powers):
+        if not all(bls.G1.is_in_prime_subgroup(P) for P in sub_ceremony.powers_of_tau.g1_powers):
             return False
-        if not all(bls.G2.is_in_G2(P) for P in sub_ceremony.powers_of_tau.g2_powers):
+        if not all(bls.G2.is_in_prime_subgroup(P) for P in sub_ceremony.powers_of_tau.g2_powers):
             return False
-        if not all(bls.G1.is_in_G1(P) for P in sub_ceremony.witness.running_products):
+        if not all(bls.G1.is_in_prime_subgroup(P) for P in sub_ceremony.witness.running_products):
             return False
-        if not all(bls.G2.is_in_G2(P) for P in sub_ceremony.witness.pot_pubkeys):
+        if not all(bls.G2.is_in_prime_subgroup(P) for P in sub_ceremony.witness.pot_pubkeys):
             return False
     return True
 ```

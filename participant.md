@@ -51,9 +51,9 @@ def schema_check(transcript_json: str, schema_path: str) -> bool:
 #### Point Checks
 
 - Subgroup checks
-    - __G1 Powers Subgroup check__ - For each of the $\mathbb{G}_1$ Powers of Tau (`g1_powers`), verify that they are actually elements of the subgroup.
-    - __G2 Powers Subgroup check__ - For each of the $\mathbb{G}_2$ Powers of Tau (`g2_powers`), verify that they are actually elements of the subgroup.
-    - __Running Product Subgroup check__ - Check that the last running product (the one the participant will interact with) is an element of the subgroup.
+    - __G1 Powers Subgroup check__ - For each of the $\mathbb{G}_1$ Powers of Tau (`g1_powers`), verify that they are actually elements of the prime-ordered subgroup.
+    - __G2 Powers Subgroup check__ - For each of the $\mathbb{G}_2$ Powers of Tau (`g2_powers`), verify that they are actually elements of the prime-ordered subgroup.
+    - __Running Product Subgroup check__ - Check that the last running product (the one the participant will interact with) is an element of the prime-ordered subgroup.
 
 ```python
 def subgroup_checks(transcript: Transcript) -> bool:
