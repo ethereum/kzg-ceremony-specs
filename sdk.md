@@ -56,7 +56,7 @@ function updateTranscript(oldTranscript: Transcript, secrets: string[]): Transcr
 
 ### `transcriptSubgroupCheck`
 
-This function performs the subgroup checks as described in [`participant.md`](./participant.md). Should all the subgroup checks in every transcript pass, this function returns `true`.
+This function performs the prime-ordered subgroup checks as described in [`participant.md`](./participant.md). Should all the subgroup checks in every transcript pass, this function returns `true`.
 
 ```typescript
 function transcriptSubgroupCheck(transcript: Transcript): boolean {
