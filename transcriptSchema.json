@@ -2,13 +2,13 @@
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
     "properties": {
-        "subCeremonies": {
+        "subTranscripts": {
             "type": "array",
             "prefixItems": [
-                {"$ref": "#/$defs/2^12SubCeremony"},
-                {"$ref": "#/$defs/2^13SubCeremony"},
-                {"$ref": "#/$defs/2^14SubCeremony"},
-                {"$ref": "#/$defs/2^15SubCeremony"}
+                {"$ref": "#/$defs/2^12SubTranscript"},
+                {"$ref": "#/$defs/2^13SubTranscript"},
+                {"$ref": "#/$defs/2^14SubTranscript"},
+                {"$ref": "#/$defs/2^15SubTranscript"}
             ],
             "items": false
         }
@@ -22,7 +22,7 @@
             "type": "string",
             "pattern": "^0x[a-f0-9]{192}$"
         },
-        "2^12SubCeremony": {
+        "2^12SubTranscript": {
             "type": "object",
             "properties": {
                 "numG1Powers": {
@@ -89,7 +89,7 @@
                 "witness"
             ]
         },
-        "2^13SubCeremony": {
+        "2^13SubTranscript": {
             "type": "object",
             "properties": {
                 "numG1Powers": {
@@ -156,7 +156,7 @@
                 "witness"
             ]
         },
-        "2^14SubCeremony": {
+        "2^14SubTranscript": {
             "type": "object",
             "properties": {
                 "numG1Powers": {
@@ -223,7 +223,7 @@
                 "witness"
             ]
         },
-        "2^15SubCeremony": {
+        "2^15SubTranscript": {
             "type": "object",
             "properties": {
                 "numG1Powers": {
