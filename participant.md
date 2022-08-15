@@ -58,11 +58,11 @@ def schema_check(transcript_json: str, schema_path: str) -> bool:
 ```python
 def subgroup_checks(transcript: Transcript) -> bool:
     for sub_ceremony in transcript.sub_ceremonies:
-        if not all(bls.G1.is_on_curve(P) for P in sub_ceremony.powers_of_tau.g1_powers):
+        if not all(bls.G1.is_in_prime_subgroup(P) for P in sub_ceremony.powers_of_tau.g1_powers):
             return False
-        if not all(bls.G2.is_on_curve(P) for P in sub_ceremony.powers_of_tau.g2_powers):
+        if not all(bls.G2.is_in_prime_subgroup(P) for P in sub_ceremony.powers_of_tau.g2_powers):
             return False
-        if not bls.G1.is_on_curve(sub_ceremony.witness.running_products[:-1]):
+        if not bls.G1.is_in_prime_subgroup(sub_ceremony.witness.running_products[:-1]):
             return False
     return True
 ```
