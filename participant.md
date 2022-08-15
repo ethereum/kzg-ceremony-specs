@@ -55,11 +55,12 @@ def schema_check(contribution_json: str, schema_path: str) -> bool:
     - __Running Product Subgroup check__ - Check that the last running product (the one the participant will interact with) is an element of the prime-ordered subgroup.
 
 ```python
+
 def subgroup_checks(contribution: Contribution) -> bool:
     for sub_contribution in contribution.sub_contributions:
-        if not all(bls.G1.is_on_curve(P) for P in sub_contribution.powers_of_tau.g1_powers):
+        if not all(bls.G1.is_in_prime_subgroup(P) for P in sub_contribution.powers_of_tau.g1_powers):
             return False
-        if not all(bls.G2.is_on_curve(P) for P in sub_contribution.powers_of_tau.g2_powers):
+        if not all(bls.G2.is_in_prime_subgroup(P) for P in sub_contribution.powers_of_tau.g2_powers):
             return False
     return True
 ```
