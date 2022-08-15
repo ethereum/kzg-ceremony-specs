@@ -1,0 +1,220 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+        "subContributions": {
+            "type": "array",
+            "prefixItems": [
+                {"$ref": "#/$defs/2^12SubContribution"},
+                {"$ref": "#/$defs/2^13SubContribution"},
+                {"$ref": "#/$defs/2^14SubContribution"},
+                {"$ref": "#/$defs/2^15SubContribution"}
+            ],
+            "items": false
+        }
+    },
+    "$defs": {
+        "G1Point": {
+            "type": "string",
+            "pattern": "^0x[a-f0-9]{96}$"
+        },
+        "G2Point": {
+            "type": "string",
+            "pattern": "^0x[a-f0-9]{192}$"
+        },
+        "2^12SubContribution": {
+            "type": "object",
+            "properties": {
+                "numG1Powers": {
+                    "type": "integer",
+                    "minimum": 4096,
+                    "maximum": 4096
+                },
+                "numG2Powers": {
+                    "type": "integer",
+                    "minimum": 65,
+                    "maximum": 65
+                },
+                "powersOfTau": {
+                    "type": "object",
+                    "properties": {
+                        "G1Powers": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/$defs/G1Point"
+                            },
+                            "minItems": 4096,
+                            "maxItems": 4096
+                        },
+                        "G2Powers": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/$defs/G2Point"
+                            },
+                            "minItems": 65,
+                            "maxItems": 65
+                        }
+                    },
+                    "required": [
+                        "G1Powers",
+                        "G2Powers"
+                    ]
+                },
+                "potPubkey": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "numG1Powers",
+                "numG2Powers",
+                "powersOfTau"
+            ]
+        },
+        "2^13SubContribution": {
+            "type": "object",
+            "properties": {
+                "numG1Powers": {
+                    "type": "integer",
+                    "minimum": 8192,
+                    "maximum": 8192
+                },
+                "numG2Powers": {
+                    "type": "integer",
+                    "minimum": 65,
+                    "maximum": 65
+                },
+                "powersOfTau": {
+                    "type": "object",
+                    "properties": {
+                        "G1Powers": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/$defs/G1Point"
+                            },
+                            "minItems": 8192,
+                            "maxItems": 8192
+                        },
+                        "G2Powers": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/$defs/G2Point"
+                            },
+                            "minItems": 65,
+                            "maxItems": 65
+                        }
+                    },
+                    "required": [
+                        "G1Powers",
+                        "G2Powers"
+                    ]
+                },
+                "potPubkey": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "numG1Powers",
+                "numG2Powers",
+                "powersOfTau"
+            ]
+        },
+        "2^14SubContribution": {
+            "type": "object",
+            "properties": {
+                "numG1Powers": {
+                    "type": "integer",
+                    "minimum": 16384,
+                    "maximum": 16384
+                },
+                "numG2Powers": {
+                    "type": "integer",
+                    "minimum": 65,
+                    "maximum": 65
+                },
+                "powersOfTau": {
+                    "type": "object",
+                    "properties": {
+                        "G1Powers": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/$defs/G1Point"
+                            },
+                            "minItems": 16384,
+                            "maxItems": 16384
+                        },
+                        "G2Powers": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/$defs/G2Point"
+                            },
+                            "minItems": 65,
+                            "maxItems": 65
+                        }
+                    },
+                    "required": [
+                        "G1Powers",
+                        "G2Powers"
+                    ]
+                }
+                ,
+                "potPubkey": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "numG1Powers",
+                "numG2Powers",
+                "powersOfTau"
+            ]
+        },
+        "2^15SubContribution": {
+            "type": "object",
+            "properties": {
+                "numG1Powers": {
+                    "type": "integer",
+                    "minimum": 32768,
+                    "maximum": 32768
+                },
+                "numG2Powers": {
+                    "type": "integer",
+                    "minimum": 65,
+                    "maximum": 65
+                },
+                "powersOfTau": {
+                    "type": "object",
+                    "properties": {
+                        "G1Powers": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/$defs/G1Point"
+                            },
+                            "minItems": 32768,
+                            "maxItems": 32768
+                        },
+                        "G2Powers": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/$defs/G2Point"
+                            },
+                            "minItems": 65,
+                            "maxItems": 65
+                        }
+                    },
+                    "required": [
+                        "G1Powers",
+                        "G2Powers"
+                    ]
+                }
+                ,
+                "potPubkey": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "numG1Powers",
+                "numG2Powers",
+                "powersOfTau"
+            ]
+        }
+    }
+}
