@@ -74,19 +74,19 @@ def parameter_check(contribution: Contribution, transcript: Transcript) -> bool:
 
 ### Point Checks
 
-- Subgroup checks
-    - __G1 Powers Subgroup check__ - For each of the $\mathbb{G}_1$ Powers of Tau (`g1_powers`), verify that they are actually elements of the subgroup.
-    - __G2 Powers Subgroup check__ - For each of the $\mathbb{G}_2$ Powers of Tau (`g2_powers`), verify that they are actually elements of the subgroup.
-    - __PoTPubkey Subgroup checks__ - Check that the PoTPubkey is actually an element of the respective subgroup.
+- Prime Subgroup checks
+    - __G1 Powers Subgroup check__ - For each of the $\mathbb{G}_1$ Powers of Tau (`g1_powers`), verify that they are actually elements of the prime-ordered subgroup.
+    - __G2 Powers Subgroup check__ - For each of the $\mathbb{G}_2$ Powers of Tau (`g2_powers`), verify that they are actually elements of the prime-ordered subgroup.
+    - __PoTPubkey Subgroup checks__ - Check that the PoTPubkey is actually an element of the prime-ordered subgroup.
 
 ```python
 def subgroup_checks(contribution: Contribution) -> bool:
     for sub_contribution in contribution.sub_contributions:
-        if not all(bls.G1.is_in_G1(P) for P in sub_contribution.powers_of_tau.g1_powers):
+        if not all(bls.G1.is_in_prime_subgroup(P) for P in sub_contribution.powers_of_tau.g1_powers):
             return False
-        if not all(bls.G2.is_in_G2(P) for P in sub_contribution.powers_of_tau.g2_powers):
+        if not all(bls.G2.is_in_prime_subgroup(P) for P in sub_contribution.powers_of_tau.g2_powers):
             return False
-        if not bls.G2.is_in_G2(sub_contribution.pot_pubkey):
+        if not bls.G2.is_in_prime_subgroup(sub_contribution.pot_pubkey):
             return False
     return True
 ```

@@ -50,7 +50,7 @@ function contribute(contribution: Contribution, secrets: string[]): Contribution
 
 ### `checkContribution`
 
-This function performs the subgroup checks as described in [`participant.md`](./participant.md). Should all the subgroup checks in the contribution pass, this function returns `true`.
+This function performs the prime-ordered subgroup checks as described in [`participant.md`](./participant.md). Should all the subgroup checks in the contribution pass, this function returns `true`.
 
 ```typescript
 function checkContribution(contribution: Contribution): boolean {
