@@ -89,11 +89,11 @@ def running_product_construction_check(transcript: Transcript) -> bool:
 ```python
 def g1_powers_check(transcript: Transcript) -> bool:
     for sub_ceremony in transcript.sub_ceremonies:
-       powers = sub_ceremony.powers_of_tau.g1_powers
-       pi = sub_ceremony.witness.running_products[-1]
-       for power, next_power in zip(powers[:-1], powers[1:]):
-           if bls.pairing(pi, power) != bls.pairing(bls.G1.g1, next_power):
-               return False
+        powers = sub_ceremony.powers_of_tau.g1_powers
+        pi = sub_contribution.powers_of_tau.g2_powers[1]
+        for power, next_power in zip(powers[:-1], powers[1:]):
+            if bls.pairing(bls.G1.g1, next_power) != bls.pairing(power, pi):
+                return False
     return True
 ```
 
@@ -102,11 +102,13 @@ def g1_powers_check(transcript: Transcript) -> bool:
 ```python
 def g2_powers_check(transcript: Transcript) -> bool:
     for sub_ceremony in transcript.sub_ceremonies:
-       g1_powers = sub_ceremony.powers_of_tau.g1_powers
-       g2_powers = sub_ceremony.powers_of_tau.g2_powers
-       for g1_power, g2_power in zip(g1_powers, g2_powers):
-           if bls.pairing(bls.G1.g1, g1_power) != bls.pairing(g2_power, bls.G2.g2):
-               return False
+        g1_powers = sub_ceremony.powers_of_tau.g1_powers
+        g2_powers = sub_ceremony.powers_of_tau.g2_powers
+        if sub_ceremony.witness.running_products[-1] != g2_powers[1]:
+            return False
+        for g1_power, g2_power in zip(g1_powers, g2_powers):
+            if bls.pairing(bls.G1.g1, g1_power) != bls.pairing(g2_power, bls.G2.g2):
+                return False
     return True
 ```
 
