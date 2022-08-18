@@ -61,7 +61,7 @@ A participant may leave the queue voluntarily be calling the `queue/leave` end p
 
 The coordinator will track individual participants, their position in the queue, and their check-in deadlines. The queue will advance every time a computation is completed and verified. Should a participant fail to check in by their deadline (plus an allowance for latency, clock variations, etc), the participant will be removed from the queue. 
 
-The expected time to participate will be estimated based on the average round trip computation time (including verification) times the number of of waiters ahead in the queue. This will be recalculated with the latest data each time the participant checks in.
+The expected time to participate will be estimated based on the average round trip computation time (including verification) times the number of waiters ahead in the queue. This will be recalculated with the latest data each time the participant checks in.
 
 The check-in deadline will start at 1 hour (i.e. hourly check-ins), or half the expected wait time, whichever is smaller. While the wait time is less than 1 hour, the deadline will be halved at each check-in call, to a minimum of 15 seconds. 
 
