@@ -38,7 +38,7 @@ Identifiers will be added to the transcript and will become part of the permanen
 
 ### Acceptance Criteria
 
-The ceremony will entail a sign-in step for all contributors. The browser client will request that a message be signed, and will pass the address and signature to the server as a sign-in request.
+The ceremony will entail a sign-in step for all contributors. The contributor client will request that a message be signed, and will pass the address and signature to the server as a sign-in request.
 
 The first attempt to sign in will trigger an assessment of the account’s eligibility.  
 Eligible accounts will proceed to an ENS name lookup, and will then be registered by the server.
