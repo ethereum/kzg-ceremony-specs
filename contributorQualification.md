@@ -31,14 +31,14 @@ Identifiers must not have previously submitted a contribution to this ceremony, 
 ## Authentication by ETH Account.
 ### Identifiers: Eth accounts and ENS names
 
-Participants will be identified using Ethereum accounts. We have no need to prohibit pseudonymous contributions, given that they have already passed anti-sybil checks.
+Participants can be identified using Ethereum accounts. We allow pseudonymous contributions, given that they have already passed anti-sybil checks.
 However, well-known names may add to the credibility of the ceremony. For any address with an ENS name reverse-lookup configured, the ENS name will be used in place of the address. 
 
 Identifiers will be added to the transcript and will become part of the permanent record of the ceremony. 
 
 ### Acceptance Criteria
 
-The ceremony will entail a sign-in step for all contributors. The browser client will request that a message be signed, and will pass the address and signature to the server as a sign-in request.
+The ceremony will entail a sign-in step for all contributors. The contributor client will request that a message be signed, and will pass the address and signature to the server as a sign-in request.
 
 The first attempt to sign in will trigger an assessment of the account’s eligibility.  
 Eligible accounts will proceed to an ENS name lookup, and will then be registered by the server.
