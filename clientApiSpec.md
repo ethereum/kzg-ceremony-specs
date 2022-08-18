@@ -49,9 +49,9 @@ The response will include these items:
 - the expected time at which to start
 - a deadline by which time the client must check in again
 
-The client must call the `queue/status` end point by the deadline or risk being marked as absent and removed from the queue. The response will indicate a new check-in deadline. 
+The client must call the `queue/checkin` end point by the deadline or risk being marked as absent and removed from the queue. The response will indicate a new check-in deadline. 
 
-The gap between check-in times will decrease as the head of the queue approaches. The client will loop (wait for the deadline, call `queue/status`, receive a new deadline) until the status indicates that it is the participant’s turn to contribute. The client must move on to the computation phase.
+The gap between check-in times will decrease as the head of the queue approaches. The client will loop (wait for the deadline, call `queue/checkin`, receive a new deadline) until the status indicates that it is the participant’s turn to contribute. The client must move on to the computation phase.
 
 Should the queue be empty when `queue/join` is called, the status will indicate that the computation is ready. No waiting is required. The client must move straight to the computation phase. 
 
@@ -98,3 +98,9 @@ Once the contribution has been returned, the client may perform additional tasks
 
 These actions are not mandatory, although strongly recommended.
 
+## Rate Limiting
+- `login` requests will be limited to 5 per hour from a single IP address.
+- `login` requests will be limited to 5 per hour for authenticated identities
+- `login` requests for identities that have failed authentication will be rejected
+- Other requests without valid authentication will be limited to 5 per hour from a single IP address
+- Other requests with valid authentication will be limited to 15 per minute from a single IP address
