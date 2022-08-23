@@ -51,11 +51,11 @@ The response will include these items:
 
 The client must call the `queue/checkin` end point by the deadline or risk being marked as absent and removed from the queue. The response will indicate a new check-in deadline. 
 
-The gap between check-in times will decrease as the head of the queue approaches. The client will loop (wait for the deadline, call `queue/checkin`, receive a new deadline) until the status indicates that it is the participant’s turn to contribute. The client must move on to the computation phase.
+The gap between check-in times will decrease as the head of the queue approaches. The client will loop (wait for the deadline; call `queue/checkin`; receive a new deadline) until the status indicates that it is the participant’s turn to contribute. The client must then move on to the computation phase.
 
 Should the queue be empty when `queue/join` is called, the status will indicate that the computation is ready. No waiting is required. The client must move straight to the computation phase. 
 
-A participant may leave the queue voluntarily be calling the `queue/leave` end point. This is optional. The participant will be removed in any case once they fail to check in.
+A participant may leave the queue voluntarily by calling the `queue/leave` end point. Clients should issue this call if the user is intentionally leaving. The participant will be removed in any case once they fail to check in.
 
 ### Coordinator
 
@@ -63,7 +63,7 @@ The coordinator will track individual participants, their position in the queue,
 
 The expected time to participate will be estimated based on the average round trip computation time (including verification) times the number of waiters ahead in the queue. This will be recalculated with the latest data each time the participant checks in.
 
-The check-in deadline will start at 1 hour (i.e. hourly check-ins), or half the expected wait time, whichever is smaller. While the wait time is less than 1 hour, the deadline will be halved at each check-in call, to a minimum of 15 seconds. 
+The initial check-in deadline will be 2 hours prior to the estimated start time. They will continue with check-ins at an interval of 1 hour or half the expected wait time, whichever is smaller. While the wait time is less than 1 hour, the deadline will be halved at each check-in call, to a minimum of 15 seconds. 
 
 For the participant currently computing their contribution, the coordinator must allow enough time for slow contributors to complete while enforcing on a deadline so as to abort failed or abandoned computations. The deadline will be 3 minutes. During this time, the participant at the head of the queue will poll at 15 second intervals until either the computation is completed or the deadline is reached. 
 
