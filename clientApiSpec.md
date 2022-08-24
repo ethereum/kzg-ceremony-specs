@@ -71,7 +71,7 @@ For the participant currently computing their contribution, the coordinator must
 
 ### Request
 
-Participants will issue a `contribution/start` call to start the computation phase. This request must be issued within 15 seconds of the `queue/status` response that notifies the contributor to begin.
+Participants will issue a `contribution/start` call to start the computation phase. This request must be issued within 15 seconds of the `queue/checkin` response that notifies the contributor to begin.
 
 Any time-consuming actions required to derive randomness should have been done prior to sending this request, so that the contribution time is reduced to the minimum.
 
@@ -86,7 +86,7 @@ The response will include the transcript from the latest valid contribution.
 
 Once the computation is complete, the updated transcript must be returned using a `contribution/complete` call. 
 
-In the event that an error is caught preventing completion, the client may call to `contribution/status`, and advise that they are aborting. This will allow the next participant to proceed with minimal delay. 
+In the event that an error is caught preventing completion, the client must call to `contribution/abort`, and advise that they are aborting. This will allow the next participant to proceed with minimal delay. 
 
 ## Post-Contribution
 
