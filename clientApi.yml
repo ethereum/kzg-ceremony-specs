@@ -10,11 +10,20 @@ info:
   version: 1.0.0
 servers:
 - url: https://us-central1-trustedsetuptest.cloudfunctions.net
+tags:
+  - name: Ceremony
+    description: Ceremony progress and status
+  - name: Queue
+    description: Queue management
+  - name: Contribution
+    description: Contribution phase
+  - name: Login
+    description: Authenticates a user and starts a session
 paths:
   /ceremony/status:
     get:
       tags:
-      - ceremony status
+      - Ceremony
       summary: Request a summary of the ceremony status
       requestBody:
         content:
@@ -40,7 +49,7 @@ paths:
   /queue/leave:
     post:
       tags:
-      - contribution
+      - Queue
       summary: Request to leave the queue
       description: |
         Requests that the participant's queue position is given up. Only valid for participants who have previously joiined the queue.
@@ -59,7 +68,7 @@ paths:
   /contribution/complete:
     post:
       tags:
-      - contribution complete
+      - Contribution
       summary: Returns a completed contribution
       description: Advises that the computation has completed and returns the updated
         transcript
@@ -75,11 +84,13 @@ paths:
             application/json:
               schema:
                 type: string
-  /contribution/status:
+  /contribution/abort:
     post:
       tags:
-      - contribution status
-      summary: Advises contribution status. Can be used to advise of an error after
+      - Contribution 
+      summary: | 
+        Indicates an error while contributing. Clients must use this endpoint 
+        in the event of an unrecoverable error after
         contribution has started.
       requestBody:
         content:
@@ -96,7 +107,7 @@ paths:
   /contribution/start:
     post:
       tags:
-      - contribute
+      - Contribution
       summary: Request prior transcript and start contribution
       description: Advises the participant's readiness to begin the computation. The
         server will verify the participant's eligibility to start, and, if eligible,
@@ -128,7 +139,7 @@ paths:
   /queue/checkin:
     post:
       tags:
-      - checkin
+      - Queue
       summary: Check-in and request queue status
       description: Check-in with the coordinator, thus confirming the client's liveness.
         Response will include next check-in time, and a notification to start the
@@ -156,7 +167,7 @@ paths:
   /queue/join:
     post:
       tags:
-      - join
+      - Queue
       summary: Join a ceremony
       description: Request to join the queue for a ceremony
       requestBody:
@@ -182,7 +193,7 @@ paths:
   /login:
     post:
       tags:
-      - login
+      - Login
       summary: Login to begin participation
       requestBody:
         content:
@@ -243,7 +254,7 @@ components:
       description: Overall ceremony summary metrics
     Contribution:
       type: object
-      description: The prior contributor's submission, ready to be updated. \ \ Refer
+      description: The prior contributor's submission, ready to be updated. Refer
         to contributionSchema.json for the description of this content.
     ContributionStatus:
       required:
