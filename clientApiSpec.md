@@ -99,8 +99,6 @@ Once the contribution has been returned, the client may perform additional tasks
 These actions are not mandatory, although strongly recommended.
 
 ## Rate Limiting
-- `login` requests will be limited to 5 per hour from a single IP address.
-- `login` requests will be limited to 5 per hour for authenticated identities
-- `login` requests for identities that have failed authentication will be rejected
-- Other requests without valid authentication will be limited to 5 per hour from a single IP address
-- Other requests with valid authentication will be limited to 15 per minute from a single IP address
+- `login` requests will be limited to 50 per hour from a single IP address.
+- Other requests without valid authentication will be limited to 100 per hour from a single IP address
+- Other requests with valid authentication will be limited to 50 per minute from a single IP address
