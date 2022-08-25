@@ -31,18 +31,18 @@ Identifiers must not have previously submitted a contribution to this ceremony, 
 ## Authentication by ETH Account.
 ### Identifiers: Eth accounts and ENS names
 
-Participants can be identified using Ethereum accounts. We allow pseudonymous contributions, given that they have already passed anti-sybil checks.
+Participants will be identified using Ethereum accounts. We have no need to prohibit pseudonymous contributions, given that they have already passed anti-sybil checks.
 However, well-known names may add to the credibility of the ceremony. For any address with an ENS name reverse-lookup configured, the ENS name will be used in place of the address. 
 
 Identifiers will be added to the transcript and will become part of the permanent record of the ceremony. 
 
 ### Acceptance Criteria
 
-The ceremony will entail a sign-in step for all contributors. The contributor client will request that a message be signed, and will pass the address and signature to the server as a sign-in request.
+The ceremony will entail a sign-in step for all contributors. The browser client will request that a message be signed, and will pass the address and signature to the server as a sign-in request.
 
 The first attempt to sign in will trigger an assessment of the account’s eligibility.  
 Eligible accounts will proceed to an ENS name lookup, and will then be registered by the server.
-To pass the assessment, the account will require a **nonce ≥ 3** on mainnet at the time the assessment is done.
+To pass the assessment, the account will require a **nonce ≥ 3** on mainnet at block height 14500000 (Around 1 Apr 2022).
 
 ## Authentication via GitHub
 
@@ -57,6 +57,6 @@ The GitHub handle will be used as the identifier in the ceremony contribution re
 # Coordinator Handover
 
 Handover of the coordinator role will require continued access to the list of all accounts used thus far in the ceremony.
-During hadnover, the retiring coordinator must export a list of all identifiers, and the new coordinator must import the list.
+During handover, the retiring coordinator must export a list of all identifiers, and the new coordinator must import the list.
 
 
