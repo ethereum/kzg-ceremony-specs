@@ -28,8 +28,8 @@ completing their contribution, provided they do not log off or close the page.
 
 Identifiers must not have previously submitted a contribution to this ceremony, nor attempted a submission. 
 
-## Authentication by ETH Account.
-### Identifiers: Eth accounts and ENS names
+## Authentication by Ethereum Account
+### Identifiers: Ethereum accounts and ENS names
 
 Participants will be identified using Ethereum accounts. We have no need to prohibit pseudonymous contributions, given that they have already passed anti-sybil checks.
 However, well-known names may add to the credibility of the ceremony. For any address with an ENS name reverse-lookup configured, the ENS name will be used in place of the address. 
@@ -48,7 +48,7 @@ To pass the assessment, the account will require a **nonce ≥ 3** on mainnet at
 
 ### Acceptance Criteria
 
-GitHub accounts will be accepted if they have a commit dated prior to 1 August, 2022 00:00 UTC.
+GitHub accounts will be accepted if they have a commit dated prior to 1 August 2022 00:00 UTC.
 
 ### Identifier
 The GitHub handle will be used as the identifier in the ceremony contribution record. 

@@ -59,7 +59,7 @@ A participant may leave the queue voluntarily by calling the `queue/leave` end p
 
 ### Coordinator
 
-The coordinator will track individual participants, their position in the queue, and their check-in deadlines. The queue will advance every time a computation is completed and verified. Should a participant fail to check in by their deadline (plus an allowance for latency, clock variations, etc), the participant will be removed from the queue. 
+The coordinator will track individual participants, their position in the queue, and their check-in deadlines. The queue will advance every time a computation is completed and verified. Should a participant fail to check in by their deadline (plus an allowance for latency, clock variations, etc.), the participant will be removed from the queue. 
 
 The expected time to participate will be estimated based on the average round trip computation time (including verification) times the number of waiters ahead in the queue. This will be recalculated with the latest data each time the participant checks in.
 
