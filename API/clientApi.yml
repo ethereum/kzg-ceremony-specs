@@ -143,7 +143,7 @@ paths:
       summary: Check-in and request queue status
       description: Check-in with the coordinator, thus confirming the client's liveness.
         Response will include next check-in time, and a notification to start the
-        contribution phase, if the paticipant is at the head of the queue.
+        contribution phase, if the participant is at the head of the queue.
       requestBody:
         description: Check in and request my queue status
         content:
@@ -319,7 +319,7 @@ components:
     AuthRequest:
       type: object
       description: |
-        A JSON object. The sig property must contain a hex represenation of a message - 'ZKParty sign-in' - signed with the private key for ethAddress using Ethereum standard signing (i.e. the  message is prefixed by \x19Ethereum Signed Message ...) The Eth account must have a nonce >= 3 on mainnet.
+        A JSON object. The sig property must contain a hex representation of a message - 'ZKParty sign-in' - signed with the private key for ethAddress using Ethereum standard signing (i.e. the  message is prefixed by \x19Ethereum Signed Message ...) The Eth account must have a nonce >= 3 on mainnet.
       properties:
         sig:
           type: string

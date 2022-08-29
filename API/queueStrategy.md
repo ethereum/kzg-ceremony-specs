@@ -17,7 +17,7 @@ Participants must qualify by signing in. See [contributor qualification spec](./
 the client should remain online until the contribution is complete. 
 
 The queue will be maintained by the coordinator. The queue will advance whenever:
-- a particpant completes their contribution, or
+- a participant completes their contribution, or
 - is determined to have left the queue This will occur if the client fails to check in by the deadline (see [client API spec](./clientApiSpec.md)), or 
 - has taken too long to submit their contribution.  
 

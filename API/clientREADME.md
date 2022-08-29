@@ -1,4 +1,4 @@
-Some documents in this folder refer to client/coordinator interations for the KZG ceremony, without detailed reference to the payload (the ceremony data). 
+Some documents in this folder refer to client/coordinator interactions for the KZG ceremony, without detailed reference to the payload (the ceremony data). 
 
 They are:
 ## queueStrategy.md
