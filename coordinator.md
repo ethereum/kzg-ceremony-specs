@@ -125,7 +125,7 @@ def g1_powers_check(contribution: Contribution) -> bool:
         powers = sub_contribution.powers_of_tau.g1_powers
         pi = sub_contribution.powers_of_tau.g2_powers[1]
         for power, next_power in zip(powers[:-1], powers[1:]):
-            if bls.pairing(bls.G1.g1, next_power) != bls.pairing(power, pi):
+            if bls.pairing(next_power, bls.G2.g2) != bls.pairing(power, pi):
                 return False
     return True
 ```
@@ -138,7 +138,7 @@ def g2_powers_check(transcript: Transcript) -> bool:
         g1_powers = sub_contribution.powers_of_tau.g1_powers
         g2_powers = sub_contribution.powers_of_tau.g2_powers
         for g1_power, g2_power in zip(g1_powers, g2_powers):
-            if bls.pairing(bls.G1.g1, g1_power) != bls.pairing(g2_power, bls.G2.g2):
+            if bls.pairing(bls.G1.g1, g2_power) != bls.pairing(g1_power, bls.G2.g2):
                 return False
     return True
 ```
