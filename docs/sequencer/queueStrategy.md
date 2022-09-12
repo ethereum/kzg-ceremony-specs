@@ -17,9 +17,9 @@ valid contributions. However, the ceremony requires a strict chain of contributi
 
 Participants must qualify by signing in. See [contributor qualification spec](./contributorQualification.md).
 
-Once signed in, participants enter the lobby (`/lobby/enter`) where they await their contribution slot. From this point,
-the client (participant) should remain online and periodically (at frequency fixed by the sequencer) call `/lobby/try_contribute` endpoint
-until the contribution is complete.
+Once signed in, participants enter the lobby by calling `/lobby/try_contribute` for the first time. From this point,
+the client (participant) should remain online and periodically (at frequency fixed by the sequencer)
+call `/lobby/try_contribute` endpoint until the contribution is complete.
 
 Since the sequencer needs to keep track of all participants in the lobby, the lobby size is capped. This prevents high memory usage and long processing times. Participants will not be able to enter when the lobby is full. Each participant can join the lobby at most once.
 
