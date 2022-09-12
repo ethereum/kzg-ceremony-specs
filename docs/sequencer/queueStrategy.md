@@ -39,7 +39,7 @@ The sequencer listens to `/lobby/try_contribute` calls. When another contributio
 
 A new contributor (participant) will be selected when:
 - there is no contribution in progress (i.e. the previous participant finished contributing), or
-- the currently selected participant failed to produce a contribution by the deadline (see [sequencer API](./sequencerApi.md)).
+- the currently selected participant failed to produce a contribution by the deadline (see [Participant Lifecycle](../participant/lifecycle.md)).
 
 Contributors who stop calling `/lobby/try_contribute` (as detected by the sequencer) may not rejoin at a later stage. Contributors may contribute only once. 
 Individuals will not be prevented from rejoining under a different ID, subject to passing the anti-sybil tests.
