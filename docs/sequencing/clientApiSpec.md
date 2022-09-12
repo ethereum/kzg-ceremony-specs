@@ -57,15 +57,15 @@ Should the queue be empty when `queue/join` is called, the status will indicate 
 
 A participant may leave the queue voluntarily by calling the `queue/leave` end point. Clients should issue this call if the user is intentionally leaving. The participant will be removed in any case once they fail to check in.
 
-### Coordinator
+### Sequencer
 
-The coordinator will track individual participants, their position in the queue, and their check-in deadlines. The queue will advance every time a computation is completed and verified. Should a participant fail to check in by their deadline (plus an allowance for latency, clock variations, etc.), the participant will be removed from the queue. 
+The sequencer will track individual participants, their position in the queue, and their check-in deadlines. The queue will advance every time a computation is completed and verified. Should a participant fail to check in by their deadline (plus an allowance for latency, clock variations, etc.), the participant will be removed from the queue. 
 
 The expected time to participate will be estimated based on the average round trip computation time (including verification) times the number of waiters ahead in the queue. This will be recalculated with the latest data each time the participant checks in.
 
 The initial check-in deadline will be 2 hours prior to the estimated start time. They will continue with check-ins at an interval of 1 hour or half the expected wait time, whichever is smaller. While the wait time is less than 1 hour, the deadline will be halved at each check-in call, to a minimum of 5 seconds. 
 
-For the participant currently computing their contribution, the coordinator must allow enough time for slow contributors to complete while enforcing on a deadline so as to abort failed or abandoned computations. The deadline will be 3 minutes. During this time, the participant at the head of the queue will poll at 5 second intervals until either the computation is completed or the deadline is reached. 
+For the participant currently computing their contribution, the sequencer must allow enough time for slow contributors to complete while enforcing on a deadline so as to abort failed or abandoned computations. The deadline will be 3 minutes. During this time, the participant at the head of the queue will poll at 5 second intervals until either the computation is completed or the deadline is reached. 
 
 ## The Computation Phase
 
