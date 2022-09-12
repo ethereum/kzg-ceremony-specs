@@ -1,6 +1,6 @@
 # Participant
 
-A participatooor downloads the contribution file from the sequencer, mixes their local randomness into the SRS and returns the contribution to the sequencer who then verifies that the contributor did not contribute in a malicious* manner.
+A participant downloads the contribution file from the sequencer, mixes their local randomness into the SRS and returns the contribution to the sequencer who then verifies that the contributor did not contribute in a malicious* manner.
 
 ## Generating randomness
 
