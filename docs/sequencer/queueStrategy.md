@@ -11,17 +11,37 @@ concentrate in the periods following an announcement such as a tweet by a promin
 valid contributions. However, the ceremony requires a strict chain of contributions - one contribution cannot start until it has possession of the prior contribution. 
 
 
-# Queue Protocol
+# Sequencing Protocol
 
-Participants must qualify by signing in. See [contributor qualification spec](./contributorQualification.md). Once signed in, they may join the queue. From this point,
-the client should remain online until the contribution is complete. 
+## Authentication & contributor qualification
 
-The queue will be maintained by the sequencer. The queue will advance whenever:
-- a participant completes their contribution, or
-- is determined to have left the queue This will occur if the client fails to check in by the deadline (see [sequencer API](./sequencerApi.md)), or 
-- has taken too long to submit their contribution.  
+Participants must qualify by signing in. See [contributor qualification spec](./contributorQualification.md).
 
-Contributors who leave the queue (and are detected as such by the sequencer) may not rejoin at a later stage. Contributors may contribute only once. 
+Once signed in, participants join the lobby (`/lobby/join`) where they await their contribution slot. From this point,
+the client (participant) should remain online and periodically (at frequency fixed by the sequencer) call `/lobby/try_contribute` endpoint
+until the contribution is complete.
+
+Since the sequencer needs to keep track of all participants in the lobby, the lobby size is capped. This prevents high memory usage and long processing times. Participants will not be able to join when the lobby is full. Each participant can join the lobby at most once.
+
+## Check-in requirements
+
+Participants need to check in by calling `/lobby/try_contribute` at a specified interval (+/- some tolerance to accommodate for network or load issues). Failing to call the `/lobby/try_contribute` on time will remove participant from the lobby and they will be unable to contribute in the future.
+
+If participant calls `/lobby/try_contribute` too frequently, additional calls are ignored and/or rate limit error is returned.
+
+Sequencer maintains a list off all participants and their last check-in times. Every second inactive participants
+(participants who failed to call in time) are purged (and blacklisted from joining in the future). When a new check-in arrives,
+the sequencer checks if previous_timestamp + lower_bound >= current_timestamp. If not, that call is ignored and the timestamp is not updated. Together, those mechanisms ensure that malicious clients don't try to prevent others from contributing by saturating the sequencer.
+
+## Obtaining a contribution slot
+
+The sequencer listens to `/lobby/try_contribute` calls. When another contribution is already in progress, a `not_ready` response will be returned. Otherwise sequencer returns a contribution file to the client, marks the participant as the current contributor and starts the contribution timer.
+
+A new contributor (participant) will be selected when:
+- there is no contribution in progress (i.e. the previous participant finished contributing), or
+- the currently selected participant failed to produce a contribution by the deadline (see [sequencer API](./sequencerApi.md)).
+
+Contributors who stop calling `/lobby/try_contribute` (as detected by the sequencer) may not rejoin at a later stage. Contributors may contribute only once. 
 Individuals will not be prevented from rejoining under a different ID, subject to passing the anti-sybil tests.
 
 Submissions for all sub-ceremonies will be collected and submitted together. A valid contribution requires all 4 contributions to pass validity tests. (See [transcript JSON Schema spec](../../apiSpec/transcriptSchema.json)). 
@@ -31,8 +51,14 @@ The sequencer will ensure that no more than a single contributor is contributing
 - Waiting for the computation to be performed
 - Receiving the updated transcript
 - Validation by the Sequencer
-- Notifying the next contributor to begin
+- Opening up a slot for the next participant who calls `/lobby/try_contribute`
+
+## Contributing
+
+Once the participant finishes computing their contribution, they call `POST /contribute` with the resulting file.
+If sequencer determines the contribution was valid (see: [sequencer spec](./sequencer.md)), it returns a contribution receipt.
+Otherwise an error is returned. In both cases the participant is blacklisted from joining the lobby and contributing again.
 
 # Sequencer Handover
 
-Handover from one sequencer to another will occur at infrequent, planned intervals over the time span of the ceremony. To facilitate handover, the sequencer is able to stop accepting new entries to the queue, and to halt processing once the queue is exhausted and the last contribution completely processed. 
+Handover from one sequencer to another will occur at infrequent, planned intervals over the time span of the ceremony. To facilitate handover, the sequencer is able to stop accepting new participants to the lobby, and to halt processing once the lobby is emptied (either by participants becoming offline or finishing their contributions).
