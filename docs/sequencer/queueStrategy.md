@@ -18,13 +18,13 @@ the client should remain online until the contribution is complete.
 
 The queue will be maintained by the sequencer. The queue will advance whenever:
 - a participant completes their contribution, or
-- is determined to have left the queue This will occur if the client fails to check in by the deadline (see [client API spec](./clientApiSpec.md)), or 
+- is determined to have left the queue This will occur if the client fails to check in by the deadline (see [sequencer API](./sequencerApi.md)), or 
 - has taken too long to submit their contribution.  
 
 Contributors who leave the queue (and are detected as such by the sequencer) may not rejoin at a later stage. Contributors may contribute only once. 
 Individuals will not be prevented from rejoining under a different ID, subject to passing the anti-sybil tests.
 
-Submissions for all sub-ceremonies will be collected and submitted together. A valid contribution requires all 4 contributions to pass validity tests. (See [ transcript schema spec](./transcriptSchema.json)). 
+Submissions for all sub-ceremonies will be collected and submitted together. A valid contribution requires all 4 contributions to pass validity tests. (See [transcript JSON Schema spec](../../apiSpec/transcriptSchema.json)). 
 
 The sequencer will ensure that no more than a single contributor is contributing at any given time. `Contributing` here refers to the full life-cycle:
 - Passing the last valid transcript to the contributor

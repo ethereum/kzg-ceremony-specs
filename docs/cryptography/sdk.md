@@ -41,7 +41,7 @@ interface Contribution {
 
 ### `contribute`
 
-This function takes in a `Contribution` object and a list of hex-encoded `secrets[]` and returns a new `Contribution` according to the method specified in [`participant.md`](./participant.md). Note that this function __does not perform the recommended subgroup checks__, instead it is expected that this will be done separately via the `checkContribution` function. `contribute()` will raise an `Error` should it fail to deserialise and of the strings or otherwise not be able to proceed.
+This function takes in a `Contribution` object and a list of hex-encoded `secrets[]` and returns a new `Contribution` according to the method specified in [`participant.md`](../participant/participant.md). Note that this function __does not perform the recommended subgroup checks__, instead it is expected that this will be done separately via the `checkContribution` function. `contribute()` will raise an `Error` should it fail to deserialise and of the strings or otherwise not be able to proceed.
 
 ```typescript
 function contribute(contribution: Contribution, secrets: string[]): Contribution {
@@ -50,7 +50,7 @@ function contribute(contribution: Contribution, secrets: string[]): Contribution
 
 ### `checkContribution`
 
-This function performs the prime-ordered subgroup checks as described in [`participant.md`](./participant.md). Should all the subgroup checks in the contribution pass, this function returns `true`.
+This function performs the prime-ordered subgroup checks as described in [`participant.md`](../participant/participant.md). Should all the subgroup checks in the contribution pass, this function returns `true`.
 
 ```typescript
 function checkContribution(contribution: Contribution): boolean {

@@ -1,6 +1,6 @@
 # `contribution.json`
 
-Due to the simplicity of this PoT setup, the full contribution is sent as a json file between the sequencer & participants. This allows the use of a RESTful API between the two and verification of certain aspects of the `contribution.json` file via the [contributionSchema.json](../apiSpec/contributionSchema.json) (see: [JSON schema](https://json-schema.org/)).
+Due to the simplicity of this PoT setup, the full contribution is sent as a json file between the sequencer & participants. This allows the use of a RESTful API between the two and verification of certain aspects of the `contribution.json` file via the [contributionSchema.json](../../apiSpec/contributionSchema.json) (see: [JSON schema](https://json-schema.org/)).
 
 
 ## `Contribution` object

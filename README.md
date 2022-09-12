@@ -6,8 +6,8 @@ The ceremony takes place between _participants_ and the _sequencer_.  _Participa
 ## Table of contents
 * [10,000 ft Overview](#10000-ft-overview)
 * Cryptography
-    * [BLS Curves](./docs/cryptography/BLS.md)
-    * [SDK](./docs/cryptography/SDK.md)
+    * [BLS](./docs/cryptography/BLS.md)
+    * [SDK](./docs/cryptography/sdk.md)
 * Contributions
     * [Object Definitions](./docs/contribution/contribution.md)
 * Sequencer
@@ -18,7 +18,7 @@ The ceremony takes place between _participants_ and the _sequencer_.  _Participa
     * [API Definition (Open API + JSON Schema)](./apiSpec)
 * Participant/Client
     * [Requirements](./docs/participant/participant.md)
-* Initialization(#initialization)
+* [Initialization](#initialization)
 
 ## 10,000 ft Overview
 We are performing a ceremony to generate Powers of Tau for KZG proofs on Ethereum. The output of the ceremony consists of 4 (distinct) sets of Powers of Tau each with a different maximum power:
