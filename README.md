@@ -1,7 +1,7 @@
 # Powers of Tau Specification
 These documents comprise a specification for Ethereum's Powers of Tau (PoT) setup for use in [KZG commitments](https://dankradfeist.de/ethereum/2020/06/16/kate-polynomial-commitments.html) in [EIP-4844 (Proto-Danksharding)](https://eips.ethereum.org/EIPS/eip-4844) and ultimately [Full Danksharding](https://notes.ethereum.org/@dankrad/new_sharding).
 
-The ceremony takes place between _participants_ and the _coordinator_.  _Participants_ are the entities that contribute their secret randomness to the final output $\tau$ s. The roll of the _coordinator_ it to act as the common point of interaction for all participants as well as verifying participants' contribution as the ceremony progresses.
+The ceremony takes place between _participants_ and the _sequencer_.  _Participants_ are the entities that contribute their secret randomness to the final output $\tau$ s. The roll of the _sequencer_ it to act as the common point of interaction for all participants as well as verifying participants' contribution as the ceremony progresses.
 
 ## 10'000 ft Overview
 We are performing a ceremony to generate Powers of Tau for KZG proofs on Ethereum. The output of the ceremony consists of 4 (distinct) sets of Powers of Tau each with a different maximum power:
@@ -16,7 +16,7 @@ Due to a lack of standardisation for a complete API for BLS curves, we define ou
 
 ## `contribution.json`
 
-Due to the simplicity of this PoT setup, the full contribution is sent as a json file between the coordinator & participants. This allows the use of a RESTful API between the two and verification of certain aspects of the `contribution.json` file via the [contributionSchema.json](./contributionSchema.json) [JSON schema](https://json-schema.org/).
+Due to the simplicity of this PoT setup, the full contribution is sent as a json file between the sequencer & participants. This allows the use of a RESTful API between the two and verification of certain aspects of the `contribution.json` file via the [contributionSchema.json](./contributionSchema.json) [JSON schema](https://json-schema.org/).
 
 
 ## `Contribution` object
