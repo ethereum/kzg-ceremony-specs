@@ -25,12 +25,6 @@ paths:
       tags:
       - Ceremony
       summary: Request a summary of the ceremony status
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CeremonyStatus'
-        required: true
       responses:
         400:
           description: Invalid Order
@@ -141,7 +135,7 @@ paths:
       tags:
       - Queue
       summary: Check-in and request queue status
-      description: Check-in with the coordinator, thus confirming the client's liveness.
+      description: Check-in with the sequencer, thus confirming the client's liveness.
         Response will include next check-in time, and a notification to start the
         contribution phase, if the participant is at the head of the queue.
       requestBody:

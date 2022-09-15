@@ -1,6 +1,6 @@
 # Participant
 
-A participatooor downloads the contribution file from the coordinator, mixes their local randomness into the SRS and returns the contribution to the coordinator who then verifies that the contributor did not contribute in a malicious* manner.
+A participant downloads the contribution file from the sequencer, mixes their local randomness into the SRS and returns the contribution to the sequencer who then verifies that the contributor did not contribute in a malicious* manner.
 
 ## Generating randomness
 
@@ -29,7 +29,7 @@ A good method for meeting the above requirements would be to make use of the `Ke
 
 ### Verifying the contribution file
 
-In order to ensure that the coordinator is not tricking a participant into leaking some of the entropy they are contributing, the participant SHOULD perform the following checks:
+In order to ensure that the sequencer is not tricking a participant into leaking some of the entropy they are contributing, the participant SHOULD perform the following checks:
 
 
 #### Contribution file structure:
