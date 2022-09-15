@@ -1,6 +1,6 @@
-# Sequencer
+# Coordinator
 
-The primary job of the sequencer is to sequence participants in the ceremony by acting as the point of contact for participants. The sequencer is required to have a DoS-resilient internet connection and sufficiently powerful hardware to verify the transcript rapidly so that they are able to send the transcript to the next participant as soon as possible. Furthermore, the sequencer should be a semi-trusted entity as they have the power to censor participants, although they cannot affect the safety of the setup.
+The primary job of the coordinator is to sequence participants in the ceremony by acting as the point of contact for participants. The coordinator is required to have a DoS-resilient internet connection and sufficiently powerful hardware to verify the transcript rapidly so that they are able to send the transcript to the next participant as soon as possible. Furthermore, the coordinator should be a semi-trusted entity as they have the power to censor participants, although they cannot affect the safety of the setup.
 
 
 ## Transcript object
@@ -35,7 +35,7 @@ class Transcript
 
 ## Verification
 
-Upon receiving the transcript back from a participant, the Sequencer MUST perform the following checks.
+Upon receiving the transcript back from a participant, the Coordinator MUST perform the following checks.
 
 ### Contribution schema structure:
 
@@ -145,7 +145,7 @@ def g2_powers_check(transcript: Transcript) -> bool:
 
 ## Updating the transcript
 
-Once the sequencer has performed the above Verification checks, they MUST update the transcript.
+Once the coordinator has performed the above Verification checks, they MUST update the transcript.
 
 
 ```python
@@ -165,7 +165,7 @@ def update_transcript(old_transcript: Transcript, contribution: Contribution) ->
 
 ## Generating the contribution file for the next participant
 
-Once the transcript has been updated, the sequencer MUST get a new `Contribution` file to send to the next participant.
+Once the transcript has been updated, the coordinator MUST get a new `Contribution` file to send to the next participant.
 
 ```python
 def get_new_contribution_file(transcript: Transcript) -> Contribution:

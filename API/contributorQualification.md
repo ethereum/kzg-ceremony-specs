@@ -54,9 +54,9 @@ GitHub accounts will be accepted if they have a commit dated prior to 1 August 2
 The GitHub handle will be used as the identifier in the ceremony contribution record. 
 
 
-# Sequencer Handover
+# Coordinator Handover
 
-Handover of the sequencer role will require continued access to the list of all accounts used thus far in the ceremony.
-During handover, the retiring sequencer must export a list of all identifiers, and the new sequencer must import the list.
+Handover of the coordinator role will require continued access to the list of all accounts used thus far in the ceremony.
+During handover, the retiring coordinator must export a list of all identifiers, and the new coordinator must import the list.
 
 
