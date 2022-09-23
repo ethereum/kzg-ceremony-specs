@@ -14,10 +14,10 @@ The ceremony takes place between _participants_ and the _sequencer_.  _Participa
     * [Requirements](./docs/sequencer/sequencer.md)
     * [Contributor Qualification](./docs/sequencer/contributorQualification.md)
     * [Contribution Queuing](./docs/sequencer/queueStrategy.md)
-    * [API Overview](./docs/sequencer/sequencerApi.md)
     * [API Definition (Open API + JSON Schema)](./apiSpec)
 * Participant/Client
     * [Requirements](./docs/participant/participant.md)
+    * [API Lifecycle](./docs/participant/lifecycle.md)
 * [Initialization](#initialization)
 
 ## 10,000 ft Overview
