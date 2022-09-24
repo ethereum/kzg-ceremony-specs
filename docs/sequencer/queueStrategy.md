@@ -21,16 +21,16 @@ Once signed in, participants enter the lobby by calling `/lobby/try_contribute` 
 the client (participant) should remain online and periodically (at frequency fixed by the sequencer)
 call `/lobby/try_contribute` endpoint until the contribution is complete.
 
-Since the sequencer needs to keep track of all participants in the lobby, the lobby size is capped. This prevents high memory usage and long processing times. Participants will not be able to enter when the lobby is full. Each participant can join the lobby at most once.
+Since the sequencer needs to keep track of all participants in the lobby, the lobby size is capped. This prevents high memory usage and long processing times. Participants will not be able to enter when the lobby is full. Each participant can only join the lobby if they haven't attempted a contribution already.
 
 ## Check-in requirements
 
-Participants need to check in by calling `/lobby/try_contribute` at a specified interval (+/- some tolerance to accommodate for network or load issues). Failing to call the `/lobby/try_contribute` on time will remove participant from the lobby and they will be unable to contribute in the future.
+Participants need to check in by calling `/lobby/try_contribute` at a specified interval (+/- some tolerance to accommodate for network or load issues). Failing to call the `/lobby/try_contribute` on time will remove participant from the lobby making space for others.
 
 If participant calls `/lobby/try_contribute` too frequently, additional calls are ignored and/or rate limit error is returned.
 
 Sequencer maintains a list off all participants and their last check-in times. Every second inactive participants
-(participants who failed to call in time) are purged (and blacklisted from joining in the future). When a new check-in arrives,
+(participants who failed to call in time) are purged. When a new check-in arrives,
 the sequencer checks if previous_timestamp + lower_bound >= current_timestamp. If not, that call is ignored and the timestamp is not updated. Together, those mechanisms ensure that malicious clients don't try to prevent others from contributing by saturating the sequencer.
 
 ## Obtaining a contribution slot
@@ -41,7 +41,7 @@ A new contributor (participant) will be selected when:
 - there is no contribution in progress (i.e. the previous participant finished contributing), or
 - the currently selected participant failed to produce a contribution by the deadline (see [Participant Lifecycle](../participant/lifecycle.md)).
 
-Contributors who stop calling `/lobby/try_contribute` (as detected by the sequencer) may not rejoin at a later stage. Contributors may contribute only once. 
+Participants who stop calling `/lobby/try_contribute` (as detected by the sequencer) will be able to rejoin at a later stage provided they haven't attempted a contribution before. Contributors may contribute only once. 
 Individuals will not be prevented from rejoining under a different ID, subject to passing the anti-sybil tests.
 
 Submissions for all sub-ceremonies will be collected and submitted together. A valid contribution requires all 4 contributions to pass validity tests. (See [transcript JSON Schema spec](../../apiSpec/transcriptSchema.json)). 

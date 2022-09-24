@@ -15,8 +15,8 @@ a large number of unique contributors and allow the possibility of a small numbe
 
 * Contributors will log in using one of the accepted authentication methods
 * The chosen identifier will be validated. Only valid identifiers will be able to progress to the following steps
-* A JWT will be issued in response to the login request. 
-* The JWT will be required in request headers for all subsequent requests. The token will be valid for a period of several hours. The contributor should not need to go through login again before
+* A session token will be issued in response to the login request. 
+* The session token will be required in request headers for all subsequent requests. The token will be valid for a period of several hours. The contributor should not need to go through login again before
 completing their contribution, provided they do not log off or close the page.
 
 # Authentication Methods

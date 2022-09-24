@@ -25,7 +25,7 @@ interface PowersOfTau{
 ```
 
 ```typescript
-interface SubContribution{
+interface Contribution{
     num_g1_powers: number
     num_g2_powers: number
     powers_of_tau: PowersOfTau
@@ -34,17 +34,17 @@ interface SubContribution{
 ```
 
 ```typescript
-interface Contribution {
-    sub_contributions: SubContribution[]
+interface BatchContribution {
+    contributions: Contribution[]
 }
 ```
 
 ### `contribute`
 
-This function takes in a `Contribution` object and a list of hex-encoded `secrets[]` and returns a new `Contribution` according to the method specified in [`participant.md`](../participant/participant.md). Note that this function __does not perform the recommended subgroup checks__, instead it is expected that this will be done separately via the `checkContribution` function. `contribute()` will raise an `Error` should it fail to deserialise and of the strings or otherwise not be able to proceed.
+This function takes in a `BatchContribution` object and a list of hex-encoded `secrets[]` and returns a new `Transcript` according to the method specified in [`participant.md`](../participant/participant.md). Note that this function __does not perform the recommended subgroup checks__, instead it is expected that this will be done separately via the `checkContribution` function. `contribute()` will raise an `Error` should it fail to deserialise and of the strings or otherwise not be able to proceed.
 
 ```typescript
-function contribute(contribution: Contribution, secrets: string[]): Contribution {
+function contribute(contribution: BatchContribution, secrets: string[]): BatchTranscript {
 }
 ```
 
@@ -53,6 +53,6 @@ function contribute(contribution: Contribution, secrets: string[]): Contribution
 This function performs the prime-ordered subgroup checks as described in [`participant.md`](../participant/participant.md). Should all the subgroup checks in the contribution pass, this function returns `true`.
 
 ```typescript
-function checkContribution(contribution: Contribution): boolean {
+function checkContribution(contribution: BatchContribution): boolean {
 }
 ```

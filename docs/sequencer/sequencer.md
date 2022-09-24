@@ -3,7 +3,7 @@
 The primary job of the sequencer is to sequence participants in the ceremony by acting as the point of contact for participants. The sequencer is required to have a DoS-resilient internet connection and sufficiently powerful hardware to verify the transcript rapidly so that they are able to send the transcript to the next participant as soon as possible. Furthermore, the sequencer should be a semi-trusted entity as they have the power to censor participants, although they cannot affect the safety of the setup.
 
 
-## Transcript object
+## BatchTranscript object
 
 ### `Witness`
 
@@ -14,23 +14,23 @@ class Witness:
     pot_pubkeys: List[bls.G2Point]
 ```
 
-### `SubTranscript`
+### `Transcript`
 
 ```python
 @dataclass
-class SubTranscript:
+class Transcript:
     num_g1_powers: int
     num_g2_powers: int
     powers_of_tau: PowersOfTau  # as defined in ./README.md
     witness: Witness
 ```
 
-### `Transcript`
+### `BatchTranscript`
 
 ```python
 @dataclass
 class Transcript
-    sub_transcripts: List[SubTranscript]
+    transcripts: List[Transcript]
 ```
 
 ## Verification
@@ -58,8 +58,8 @@ def schema_check(contribution_json: str, schema_path: str) -> bool:
 This check verifies that the number of $\mathbb{G}_1$ and $\mathbb{G}_2$ powers meets expectations.
 
 ```python
-def parameter_check(contribution: Contribution, transcript: Transcript) -> bool:
-    for (sub_contribution, sub_transcript) in zip(contribution.sub_contributions, transcript.sub_transcript):
+def parameter_check(contribution: BatchContribution, transcript: BatchTranscript) -> bool:
+    for (sub_contribution, sub_transcript) in zip(contribution.contributions, transcript.transcripts):
         if sub_contribution.num_g1_powers != sub_transcript.num_g1_powers:
             return False
         if sub_contribution.num_g2_powers != sub_transcript.num_g2_powers:
@@ -80,8 +80,8 @@ def parameter_check(contribution: Contribution, transcript: Transcript) -> bool:
     - __PoTPubkey Subgroup checks__ - Check that the PoTPubkey is actually an element of the prime-ordered subgroup.
 
 ```python
-def subgroup_checks(contribution: Contribution) -> bool:
-    for sub_contribution in contribution.sub_contributions:
+def subgroup_checks(contribution: BatchContribution) -> bool:
+    for sub_contribution in contribution.contributions:
         if not all(bls.G1.is_in_prime_subgroup(P) for P in sub_contribution.powers_of_tau.g1_powers):
             return False
         if not all(bls.G2.is_in_prime_subgroup(P) for P in sub_contribution.powers_of_tau.g2_powers):
@@ -93,8 +93,8 @@ def subgroup_checks(contribution: Contribution) -> bool:
 
 - __Non-zero check__ - Check that the `pot_pubkey`s are not equal to the point at infinity.
 ```python
-def non_zero_check(contribution: Contribution) -> bool:
-    for sub_contribution in ceremony.sub_contributions:
+def non_zero_check(contribution: BatchContribution) -> bool:
+    for sub_contribution in contribution.contributions:
         if bls.G2.is_inf(sub_contribution.pot_pubkey):
             return False
     return True
@@ -107,8 +107,8 @@ _Note:_ The following pairing checks SHOULD be batched via a random linear combi
 - __Tau update construction__ - Verify that the latest contribution is correctly built on top of the previous ones. Let $[\tau^1_{k}]_1$ be the first power of tau from the most recent ($k$-th)`contribution` and $[\pi]_1^{k-1} := [\tau^1_{k-1}]_1$ be the transcript after updating from the previous correct `contribution`.  Verifying that $\tau$ was updated correctly can then be performed by checking $e([\pi_{k-1}]_1, [x_k]_2) \stackrel{?}{=}e([\pi_{k}]_1, g_2)$
 
 ```python
-def tau_update_check(contribution: Contribution, transcript: Transcript) -> bool:
-    for (sub_contribution, sub_transcript) in zip(contribution.sub_contributions, transcript.sub_transcripts):
+def tau_update_check(contribution: BatchContribution, transcript: BatchTranscript) -> bool:
+    for (sub_contribution, sub_transcript) in zip(contribution.contributions, transcript.transcripts):
         tau = sub_contribution.powers_of_tau.g1_powers[1]
         transcript_product = sub_transcript.witness.running_products
         pk = sub_contribution.pot_pubkey
@@ -120,8 +120,8 @@ def tau_update_check(contribution: Contribution, transcript: Transcript) -> bool
 - __Correct construction of G1 Powers__ - Verify that the $\mathbb{G}_1$ points provided are indeed incremental powers of (the same) $\tau$. This check is done by asserting that the next $\mathbb{G}_1$ point is the result of multiplying the previous one with $\tau$: $e([\tau^{i + 1}]_1, g_2) \stackrel{?}{=}e([\tau^i]_1, [\tau]_2)$. Note that the check that the $\tau$ in $[\tau]_2$ is the same as $\pi_k$ is done via the `g2_powers_check()` below which verifies that $e([\tau^i]_1, g_2) \stackrel{?}{=}e(g_2, [\tau^i]_2)$ and $[\tau^i]_1 = [\pi_k]_1$ due to the `Transcript` updates rules.
 
 ```python
-def g1_powers_check(contribution: Contribution) -> bool:
-    for sub_contribution in contribution.sub_contributions:
+def g1_powers_check(contribution: BatchContribution) -> bool:
+    for sub_contribution in contribution.contributions:
         powers = sub_contribution.powers_of_tau.g1_powers
         pi = sub_contribution.powers_of_tau.g2_powers[1]
         for power, next_power in zip(powers[:-1], powers[1:]):
@@ -133,8 +133,8 @@ def g1_powers_check(contribution: Contribution) -> bool:
 - __Correct construction of G2 Powers__ - Verify that the $\mathbb{G}_2$ points provided are indeed incremental powers of $\tau$ and that $\tau$ is the same across $\mathbb{G}_1$ and $\mathbb{G}_2$. This check is done by verifying that $\tau^i$ is the same across $[\tau^i]_1$ and $[\tau^i]_2$. $e([\tau^i]_1, g_2) \stackrel{?}{=}e(g_2, [\tau^i]_2)$
 
 ```python
-def g2_powers_check(transcript: Transcript) -> bool:
-    for sub_contribution in transcript.sub_contributions:
+def g2_powers_check(transcript: BatchTranscript) -> bool:
+    for sub_contribution in transcript.contributions:
         g1_powers = sub_contribution.powers_of_tau.g1_powers
         g2_powers = sub_contribution.powers_of_tau.g2_powers
         for g1_power, g2_power in zip(g1_powers, g2_powers):
@@ -149,9 +149,9 @@ Once the sequencer has performed the above Verification checks, they MUST update
 
 
 ```python
-def update_transcript(old_transcript: Transcript, contribution: Contribution) -> Transcript:
-    new_transcript = Transcript(sub_transcripts=[])
-    for (sub_transcript, sub_ceremony) in zip(old_transcript.sub_transcripts, contribution.sub_ceremonies):
+def update_transcript(old_transcript: BatchTranscript, contribution: BatchContribution) -> BatchTranscript:
+    new_transcript = Transcript(transcripts=[])
+    for (sub_transcript, sub_ceremony) in zip(old_transcript.transcripts, contribution.ceremonies):
         new_sub_transcript = SubTranscript(
             num_g1_powers=sub_transcript.num_g1_powers,
             num_g2_powers=sub_transcript.num_g2_powers,
@@ -168,11 +168,11 @@ def update_transcript(old_transcript: Transcript, contribution: Contribution) ->
 Once the transcript has been updated, the sequencer MUST get a new `Contribution` file to send to the next participant.
 
 ```python
-def get_new_contribution_file(transcript: Transcript) -> Contribution:
-    contribution = Contribution(sub_contribution=[])
-    for sub_transcript in transcript:
-        contribution.sub_contribution.append(
-            SubContribution(
+def get_new_contribution_file(transcript: BatchTranscript) -> BatchContribution:
+    contribution = Contribution(contribution=[])
+    for sub_transcript in transcript.transcripts:
+        contribution.contributions.append(
+            Contribution(
                 num_g1_powers=sub_transcript.num_g1_powers,
                 num_g2_powers=sub_transcript.num_g2_powers,
                 powers_of_tau=sub_transcript.powers_of_tau,
