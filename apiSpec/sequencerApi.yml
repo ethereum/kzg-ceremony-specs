@@ -13,18 +13,18 @@ servers:
 tags:
   - name: Ceremony
     description: Ceremony progress and status
-  - name: Queue
-    description: Queue management
+  - name: Lobby
+    description: Staging area where participants are waiting for their contribution slot.
   - name: Contribution
     description: Contribution phase
   - name: Login
     description: Authenticates a user and starts a session
 paths:
-  /ceremony/status:
+  /info/status:
     get:
       tags:
       - Ceremony
-      summary: Request a summary of the ceremony status
+      summary: Request a summary of the ceremony status (contributions, lobby size)
       responses:
         400:
           description: Invalid Order
@@ -40,26 +40,28 @@ paths:
                 $ref: '#/components/schemas/CeremonyStatus'
       security:
       - authWithEth: []
-  /queue/leave:
-    post:
+  /info/current_state:
+    get:
       tags:
-      - Queue
-      summary: Request to leave the queue
-      description: |
-        Requests that the participant's queue position is given up. Only valid for participants who have previously joiined the queue.
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Participant'
+      - Ceremony
+      summary: Request a current transcript
       responses:
+        400:
+          description: Invalid Order
+          content:
+            application/json:
+              schema:
+                type: object
         200:
           description: successful operation
           content:
             application/json:
               schema:
-                type: object
-  /contribution/complete:
+                $ref: '#/components/schemas/CeremonyStatus'
+      security:
+      - authWithEth: []
+
+  /contribute:
     post:
       tags:
       - Contribution
@@ -98,48 +100,15 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ContributionStatus'
-  /contribution/start:
+  /lobby/try_contribute:
     post:
       tags:
-      - Contribution
-      summary: Request prior transcript and start contribution
-      description: Advises the participant's readiness to begin the computation. The
-        server will verify the participant's eligibility to start, and, if eligible,
-        return the last valid transcript.
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Participant'
-      responses:
-        404:
-          description: ID not found
-          content:
-            application/json:
-              schema:
-                type: object
-        400:
-          description: Invalid ID supplied
-          content:
-            application/json:
-              schema:
-                type: object
-        200:
-          description: successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Participant'
-  /queue/checkin:
-    post:
-      tags:
-      - Queue
-      summary: Check-in and request queue status
+      - Lobby
+      summary: Check-in and request a contribution file
       description: Check-in with the sequencer, thus confirming the client's liveness.
-        Response will include next check-in time, and a notification to start the
-        contribution phase, if the participant is at the head of the queue.
+        Response will indicate whether the client should start working on the contribution or continue pining via /lobby/try_contribute all.
       requestBody:
-        description: Check in and request my queue status
+        description: Check-in and request a contribution file
         content:
           application/json:
             schema:
@@ -158,37 +127,11 @@ paths:
             application/json:
               schema:
                 type: object
-  /queue/join:
-    post:
-      tags:
-      - Queue
-      summary: Join a ceremony
-      description: Request to join the queue for a ceremony
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Participant'
-      responses:
-        400:
-          description: Invalid status value
-          content:
-            application/json:
-              schema:
-                type: object
-        200:
-          description: successful operation
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ParticipantQueueStatus'
-  /login:
+  /auth/request_link:
     post:
       tags:
       - Login
-      summary: Login to begin participation
+      summary: Get links to Ethereum and GitHub login processes
       requestBody:
         content:
           application/json:
