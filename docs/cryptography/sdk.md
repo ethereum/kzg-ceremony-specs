@@ -44,7 +44,7 @@ interface BatchContribution {
 This function takes in a `BatchContribution` object and a list of hex-encoded `secrets[]` and returns a new `BatchTranscript` according to the method specified in [`participant.md`](../participant/participant.md). Note that this function __does not perform the recommended subgroup checks__, instead it is expected that this will be done separately via the `checkContribution` function. `contribute()` will raise an `Error` should it fail to deserialise and of the strings or otherwise not be able to proceed.
 
 ```typescript
-function contribute(contribution: BatchContribution, secrets: string[]): BatchTranscript {
+function contribute(contribution: BatchContribution, secrets: string[]): BatchContribution {
 }
 ```
 
