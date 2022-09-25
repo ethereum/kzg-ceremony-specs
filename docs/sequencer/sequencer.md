@@ -21,7 +21,7 @@ class Witness:
 class Transcript:
     num_g1_powers: int
     num_g2_powers: int
-    powers_of_tau: PowersOfTau  # as defined in ./README.md
+    powers_of_tau: PowersOfTau  # as defined in ./docs/contribution/contribution.md
     witness: Witness
 ```
 
