@@ -1,6 +1,8 @@
 # Participant
 
-A participant downloads the contribution file from the sequencer, mixes their local randomness into the SRS and returns the contribution to the sequencer who then verifies that the contributor did not contribute in a malicious* manner.
+A participant downloads the contribution file from the sequencer, mixes their local randomness into the SRS
+and returns the contribution to the sequencer who then verifies that the contributor did not contribute
+in a malicious* manner.
 
 ## Generating randomness
 
@@ -76,37 +78,37 @@ Once the participant has fetched the `contribution.json` file, for each of the `
     - Multiply each of the `powers_of_tau.g2_powers` by incremental powers of `x` and overwrite the `powers_of_tau.g2_powers` in the contribution
 
 ```python
-def update_powers_of_tau(sub_contribution: SubCeremony, x: int) -> SubCeremony:
+def update_powers_of_tau(contribution: Contribution, x: int) -> Contribution:
     '''
     Updates the Powers of Tau within a sub-ceremony by multiplying each with a successive power of the secret x.
     '''
     x_i = 1
-    for i in range(sub_contribution.num_g1_powers):
+    for i in range(contribution.num_g1_powers):
         # Update G1 Powers
-        sub_contribution.powers_of_tau.g1_powers[i] = bls.G1.mul(x_1, sub_contribution.powers_of_tau.g1_powers[i])
+        contribution.powers_of_tau.g1_powers[i] = bls.G1.mul(x_1, contribution.powers_of_tau.g1_powers[i])
         # Update G2 Powers
-        if i < sub_contribution.num_g2_powers:
-            sub_contribution.powers_of_tau.g2_powers[i] = bls.G2.mul(x_1, sub_contribution.powers_of_tau.g2_powers[i])
+        if i < contribution.num_g2_powers:
+            contribution.powers_of_tau.g2_powers[i] = bls.G2.mul(x_1, contribution.powers_of_tau.g2_powers[i])
         x_i = (x_i * x) % bls.r
-    return sub_contribution
+    return contribution
 ```
 
 - Update Witness
-    - Set `sub_contribution.pot_pubkey` to `bls.G2.mul(x, bls.G2.g2)`
+    - Set `contribution.pot_pubkey` to `bls.G2.mul(x, bls.G2.g2)`
 
 ```python
-def update_witness(sub_contribution: SubCeremony, x: int) -> SubCeremony:
-    sub_contribution.pot_pubkey = bls.G2.mul(x, bls.G2.g2)
-    return sub_contribution
+def update_witness(contribution: Contribution, x: int) -> Contribution:
+    contribution.pot_pubkey = bls.G2.mul(x, bls.G2.g2)
+    return contribution
 ```
 
 
 ```python
-def contribute(contributionFile: Contribution) -> Contribution:
-    for sub_contribution in contributionFile.sub_contributions:
+def contribute(contributionFile: BatchContribution) -> BatchContribution:
+    for contribution in contributionFile.contributions:
         x = randbelow(bls.r)
-        sub_contribution = update_powers_of_tau(sub_contribution, x)
-        sub_contribution = update_witness(sub_contribution, x)
+        contribution = update_powers_of_tau(contribution, x)
+        contribution = update_witness(contribution, x)
         del x
     return contributionFile
 ```
