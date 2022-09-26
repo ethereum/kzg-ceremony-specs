@@ -32,7 +32,7 @@ Implementations making use of the IRTF BLS Standards SHOULD choose the `BLS_POP_
 ### Encoding & types
 
 - `bls.G1Point` - the type of a $\mathbb{G}_1$ point. A 48 byte object with encoding defined as per the z-cash specs.
-- `bls.G2Point` - the type of a $\mathbb{G}_1$ point. A 48 byte object with encoding defined as per the z-cash specs.
+- `bls.G2Point` - the type of a $\mathbb{G}_2$ point. A 48 byte object with encoding defined as per the z-cash specs.
 
 ### Parameters
 

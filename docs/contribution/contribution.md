@@ -27,7 +27,7 @@ class Contribution:
     pot_pubkey: bls.G2Point
 ```
 
-### `Contribution`
+### `BatchContribution`
 
 ```python
 @dataclass

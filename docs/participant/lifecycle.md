@@ -28,7 +28,7 @@ Any time-consuming actions required to derive randomness should have been done r
 
 ## Authentication & joining the lobby
 
-Participants are required to identify themselves and pass some anti-sybil qualifying tests (see [Contributor Quaification](./contributorQualification.md)) 
+Participants are required to identify themselves and pass some anti-sybil qualifying tests (see [Contributor Quaification](../../docs/sequencer/contributorQualification.md)) 
 
 The client must login using the `login` end point. A successful request will return a session token which must be passed in subsequent requests (except where noted).
 
@@ -50,7 +50,7 @@ will make space for other participants who might want to contribute.
 
 ### Sequencer
 
-The sequencer will track individual participants, their last check-in time and session id. The queue behavior is described in [Queue Strategy document](./queueStrategy.md).
+The sequencer will track individual participants, their last check-in time and session id. The queue behavior is described in [Queue Strategy document](../../docs/sequencer/queueStrategy.md).
 
 ## Computing contribution when asked to by the sequencer
 
@@ -59,7 +59,7 @@ specified time to calculate their contribution (see [Participant document](../pa
 Failing to do so in time results in their contribution being rejected, and their account blacklisted and logged out.
 
 The contributions will be sent using the `/contribute` endpoint where
-[sequencer will run validations](./sequencer.md#verification). If the contribution is correct, the participant
+[sequencer will run validations](../../docs/sequencer/sequencer.md#verification). If the contribution is correct, the participant
 will receive a contribution receipt. In either case, the participant will be blacklisted from future contributions.
 
 In the event of error, the client might call `/contribution/abort` to cooperatively release their computation
