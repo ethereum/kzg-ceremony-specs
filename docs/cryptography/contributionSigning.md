@@ -63,10 +63,10 @@ Note that the array of `contributionPubkey[]` MUST be sorted in increasing order
 
 ### `contribution_to_typed_data_dict()`
 
-The following function is defined to aid in the serialisation of a `Contribution` by building an EIP712 `TypedData` out of a `Contribution`.
+The following function is defined to aid in the serialisation of a `BatchContribution` by building an EIP712 `TypedData` out of a `BatchContribution`.
 
 ```python
-def contribution_to_typed_data_str(contribution: Contribution) -> str:
+def contribution_to_typed_data_str(batch_contribution: BatchContribution) -> str:
     typed_data_dict = {
         "types": {
             "EIP712Domain": [
@@ -92,10 +92,10 @@ def contribution_to_typed_data_str(contribution: Contribution) -> str:
         "message": {
             "potPubkeys": [
                 {
-                    "numG1Powers": sub_contribution.num_g1_powers,
-                    "numG2Powers": sub_contribution.num_g2_powers,
-                    "potPubkey": sub_contribution.pot_pubkey  # Note: this should be encoded as per BLS.md
-                } for sub_contribution in contribution]
+                    "numG1Powers": contribution.num_g1_powers,
+                    "numG2Powers": contribution.num_g2_powers,
+                    "potPubkey": contribution.pot_pubkey  # Note: this should be encoded as per BLS.md
+                } for contribution in batch_contribution]
         }
     }
     return json.dumps(typed_data_dict)

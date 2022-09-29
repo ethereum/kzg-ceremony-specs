@@ -1,6 +1,8 @@
 # Participant
 
-A participant downloads the contribution file from the sequencer, mixes their local randomness into the SRS and returns the contribution to the sequencer who then verifies that the contributor did not contribute in a malicious* manner.
+A participant downloads the contribution file from the sequencer, mixes their local randomness into the SRS
+and returns the contribution to the sequencer who then verifies that the contributor did not contribute
+in a malicious* manner.
 
 ## Generating randomness
 
@@ -56,18 +58,18 @@ def schema_check(contribution_json: str, schema_path: str) -> bool:
 
 ```python
 
-def subgroup_checks(contribution: Contribution) -> bool:
-    for sub_contribution in contribution.sub_contributions:
-        if not all(bls.G1.is_in_prime_subgroup(P) for P in sub_contribution.powers_of_tau.g1_powers):
+def subgroup_checks(batch_contribution: BatchContribution) -> bool:
+    for contribution in batch_contribution.contributions:
+        if not all(bls.G1.is_in_prime_subgroup(P) for P in contribution.powers_of_tau.g1_powers):
             return False
-        if not all(bls.G2.is_in_prime_subgroup(P) for P in sub_contribution.powers_of_tau.g2_powers):
+        if not all(bls.G2.is_in_prime_subgroup(P) for P in contribution.powers_of_tau.g2_powers):
             return False
     return True
 ```
 
 ### Updating the contribution file
 
-Once the participant has fetched the `contribution.json` file, for each of the `SubCeremonies`s within they MUST perform the following actions:
+Once the participant has fetched the `contribution.json` file, for each of the `Contributions`s within they MUST perform the following actions:
 
 - Generate the secrets:
     - Sample a secret `x` from their CSPRNG as per Generating randomness above
@@ -76,28 +78,28 @@ Once the participant has fetched the `contribution.json` file, for each of the `
     - Multiply each of the `powers_of_tau.g2_powers` by incremental powers of `x` and overwrite the `powers_of_tau.g2_powers` in the contribution
 
 ```python
-def update_powers_of_tau(sub_contribution: SubCeremony, x: int) -> SubCeremony:
+def update_powers_of_tau(contribution: Contribution, x: int) -> Contribution:
     '''
     Updates the Powers of Tau within a sub-ceremony by multiplying each with a successive power of the secret x.
     '''
     x_i = 1
-    for i in range(sub_contribution.num_g1_powers):
+    for i in range(contribution.num_g1_powers):
         # Update G1 Powers
-        sub_contribution.powers_of_tau.g1_powers[i] = bls.G1.mul(x_1, sub_contribution.powers_of_tau.g1_powers[i])
+        contribution.powers_of_tau.g1_powers[i] = bls.G1.mul(x_1, contribution.powers_of_tau.g1_powers[i])
         # Update G2 Powers
-        if i < sub_contribution.num_g2_powers:
-            sub_contribution.powers_of_tau.g2_powers[i] = bls.G2.mul(x_1, sub_contribution.powers_of_tau.g2_powers[i])
+        if i < contribution.num_g2_powers:
+            contribution.powers_of_tau.g2_powers[i] = bls.G2.mul(x_1, contribution.powers_of_tau.g2_powers[i])
         x_i = (x_i * x) % bls.r
-    return sub_contribution
+    return contribution
 ```
 
 - Update Witness
-    - Set `sub_contribution.pot_pubkey` to `bls.G2.mul(x, bls.G2.g2)`
+    - Set `contribution.pot_pubkey` to `bls.G2.mul(x, bls.G2.g2)`
 
 ```python
-def update_witness(sub_contribution: SubCeremony, x: int) -> SubCeremony:
-    sub_contribution.pot_pubkey = bls.G2.mul(x, bls.G2.g2)
-    return sub_contribution
+def update_witness(contribution: Contribution, x: int) -> Contribution:
+    contribution.pot_pubkey = bls.G2.mul(x, bls.G2.g2)
+    return contribution
 ```
 
 ### Signing the contributions
@@ -115,7 +117,7 @@ The signing of contributions with Ethereum ECDSA keys and BLS signing the user's
 
 
 ```python
-def sign_identity(sub_contribution: SubCeremony, x: int, identity: str,) -> SubCeremony:
+def sign_identity(contribution: Contribution, x: int, identity: str,) -> Contribution:
     encoded_identity = b''
     if identity[:2] == '0x':
         # Identity is a Ethereum address
@@ -124,32 +126,32 @@ def sign_identity(sub_contribution: SubCeremony, x: int, identity: str,) -> SubC
         # Identity is an GitHub ID
         encoded_identity = github_handle_to_identity(identity).encode()
     signature = bls.Sign(x, encoded_identity)
-    sub_contribution.bls_signature = signature
+    contribution.bls_signature = signature
 ```
 
 ```python
-def sign_contribution(contribution: Contribution, ethereum_address: Optional[str]) -> dict[Str, Union[str, int]]:
+def sign_contribution(batch_contribution: BatchContribution, ethereum_address: Optional[str]) -> BatchContribution:
     typed_data = contribution_to_typed_data_str(contribution)  # function defined in contributionSigning.md
     contribution.ecdsa_signature = web3.eth.sign_typed_data(ethereum_address, json.loads(typed_data))
-    return contribution
+    return batch_contribution
 ```
 
 ### Tying it all together
 
 ```python
-def contribute(contribution: Contribution,
+def contribute(batch_contribution: BatchContribution,
                identity: Optional[str] = None,
-               ethereum_address: Optional[str] = None) -> Contribution:
-    for sub_contribution in contribution.sub_contributions:
+               ethereum_address: Optional[str] = None) -> BatchContribution:
+    for contribution in batch_contribution.contributions:
         x = randbelow(bls.r)
-        sub_contribution = update_powers_of_tau(sub_contribution, x)
-        sub_contribution = update_witness(sub_contribution, x)
+        contribution = update_powers_of_tau(contribution, x)
+        contribution = update_witness(contribution, x)
         if identity is not None:
-            sub_contribution = sign_identity(sub_contribution, x, identity)
+            contribution = sign_identity(contribution, x, identity)
         del x
     if ethereum_address is not None:
         contribution = sign_contribution(contribution, ethereum_address)
-    return contribution
+    return batch_contribution
 ```
 
 ### Clearing the memory
