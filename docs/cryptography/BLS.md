@@ -5,9 +5,9 @@
 We make use of the following notation throughout this specification:
 - $p$ - the field modulus
 - $E_1(\mathbb{F}_p)$ the curve defined over $\mathbb{F}_p$
-- $E_2(\mathbb{F}_p^2)$ the curve defined over $\mathbb{F}_{p^2}$
+- $E_2(\mathbb{F}\_{p^2})$ the curve defined over $\mathbb{F}_{p^2}$
 - $\mathbb{G}_1 \subset E_1(\mathbb{F}_p)$ - the prime-ordered additive subgroup of $E_1(\mathbb{F}_p)$
-- $\mathbb{G}_1 \subset E_2(\mathbb{F}_{p^2})$ - the prime-ordered additive subgroup of $\mathbb{F}_{p^2}$
+- $\mathbb{G}_2 \subset E_2(\mathbb{F}\_{p^2})$ - the prime-ordered additive subgroup of $\mathbb{F}\_{p^2}$
 - $g_1 \in \mathbb{G}_1$, $g_2 \in \mathbb{G}_2$  - the generators of $\mathbb{G}_1$ and $\mathbb{G}_2$ respectively
 - $\mathcal{O}_1 \in \mathbb{G}_1$, $\mathcal{O}_2 \in \mathbb{G}_2$  - the points at infinity for $\mathbb{G}_1$ and $\mathbb{G}_2$ respectively
 - $e: \mathbb{G}_1 \times \mathbb{G}_2 \to \mathbb{G}_T$ - the bilinear pairing function 
