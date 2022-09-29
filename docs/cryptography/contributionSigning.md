@@ -108,21 +108,19 @@ Identities serve two purposes, they are the canonical method for identifying con
 ### Ethereum Address
 
 ```python
-def encode_ethereum_identity(eth_address: str) -> bytes:
+def eth_address_to_identity(eth_address: str) -> str:
     assert eth_address[:2] == '0x'  # Ethereum Addresses must start with '0x'.
-    identity_str = 'eth|' + eth_address.lower()
-    return identity_str.encode()
+    return = 'eth|' + eth_address.lower()
 ```
 
 ### GitHub
 
 ```python
-def encode_github_identity(github_handle: str) -> bytes:
+def github_handle_to_identity(github_handle: str) -> str:
     # Note that GitHub handles are limited to 39 alpha-numeric chars
     # (Regex: /^[a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38}$/i) 
     assert github_handle[1] == '@' # GitHub handles must start with '@'.
-    identity_str = 'git|' + github_handle.lower()
-    return identity_str.encode()
+    return 'git|' + github_handle.lower()
 ```
 
 

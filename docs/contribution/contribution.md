@@ -25,14 +25,14 @@ class SubContribution:
     num_g2_powers: int
     powers_of_tau: PowersOfTau
     pot_pubkey: Optional[bls.G2Point]
-    bls_signature: Optional[bls.G1Point]
+    bls_signature: Union[bls.G1Point, str, None]
 ```
 
 ### `Contribution`
 
 ```python
 @dataclass
-class Contribution
+class Contribution:
     sub_contribution: List[SubContribution]
-    ecdsa_signature: Optional[bytes]
+    ecdsa_signature: Union[bytes, str, None]
 ```

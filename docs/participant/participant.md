@@ -119,10 +119,10 @@ def sign_identity(sub_contribution: SubCeremony, x: int, identity: str,) -> SubC
     encoded_identity = b''
     if identity[:2] == '0x':
         # Identity is a Ethereum address
-        encoded_identity = encode_ethereum_identity(identity)
+        encoded_identity = eth_address_to_identity(identity).encode()
     else:
         # Identity is an GitHub ID
-        encoded_identity = encode_github_identity(identity)
+        encoded_identity = github_handle_to_identity(identity).encode()
     signature = bls.Sign(x, encoded_identity)
     sub_contribution.bls_signature = signature
 ```
