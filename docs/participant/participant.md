@@ -100,15 +100,56 @@ def update_witness(sub_contribution: SubCeremony, x: int) -> SubCeremony:
     return sub_contribution
 ```
 
+### Signing the contributions
+
+The signing of contributions with Ethereum ECDSA keys and BLS signing the user's identity is RECOMMENDED.
+
+- Getting the encoded identity:
+    - Depending on whether the user logged in with an Ethereum Address or a GitHub handle, they will encode their identity into bytes via either 
+- BLS-Sign Identity (RECOMMENDED):
+    - Use the secret `x` as a private key to sign the user's encoded identity.
+- ECDSA Sign the user's PoT Pubkeys (RECOMMENDED)
+    - Only perform these steps if using an Ethereum Address to login
+    - Build the EIP712 `TypedData` JSON object as per [contributionSigning.md](../cryptography/contributionSigning.md)
+    - Use `web3.eth.signTypedData()` to sign the message
+
 
 ```python
-def contribute(contributionFile: Contribution) -> Contribution:
-    for sub_contribution in contributionFile.sub_contributions:
+def sign_identity(sub_contribution: SubCeremony, x: int, identity: str,) -> SubCeremony:
+    encoded_identity = b''
+    if identity[:2] == '0x':
+        # Identity is a Ethereum address
+        encoded_identity = encode_ethereum_identity(identity)
+    else:
+        # Identity is an GitHub ID
+        encoded_identity = encode_github_identity(identity)
+    signature = bls.Sign(x, encoded_identity)
+    sub_contribution.bls_signature = signature
+```
+
+```python
+def sign_contribution(contribution: Contribution, ethereum_address: Optional[str]) -> dict[Str, Union[str, int]]:
+    typed_data = contribution_to_typed_data_str(contribution)  # function defined in contributionSigning.md
+    contribution.ecdsa_signature = web3.eth.sign_typed_data(ethereum_address, json.loads(typed_data))
+    return contribution
+```
+
+### Tying it all together
+
+```python
+def contribute(contribution: Contribution,
+               identity: Optional[str] = None,
+               ethereum_address: Optional[str] = None) -> Contribution:
+    for sub_contribution in contribution.sub_contributions:
         x = randbelow(bls.r)
         sub_contribution = update_powers_of_tau(sub_contribution, x)
         sub_contribution = update_witness(sub_contribution, x)
+        if identity is not None:
+            sub_contribution = sign_identity(sub_contribution, x, identity)
         del x
-    return contributionFile
+    if ethereum_address is not None:
+        contribution = sign_contribution(contribution, ethereum_address)
+    return contribution
 ```
 
 ### Clearing the memory

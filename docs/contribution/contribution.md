@@ -24,7 +24,8 @@ class SubContribution:
     num_g1_powers: int
     num_g2_powers: int
     powers_of_tau: PowersOfTau
-    pot_pubkey: bls.G2Point
+    pot_pubkey: Optional[bls.G2Point]
+    bls_signature: Optional[bls.G1Point]
 ```
 
 ### `Contribution`
@@ -33,4 +34,5 @@ class SubContribution:
 @dataclass
 class Contribution
     sub_contribution: List[SubContribution]
+    ecdsa_signature: Optional[bytes]
 ```
