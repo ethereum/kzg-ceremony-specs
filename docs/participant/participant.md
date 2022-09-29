@@ -138,6 +138,8 @@ def sign_contribution(batch_contribution: BatchContribution, ethereum_address: O
 
 ### Tying it all together
 
+_Note:_ contribution signing can be done before the participant ever receives the contribution from the sequencer by deciding on the secret ahead of time. Doing so is the RECOMMENDED order of operations so as not to slow down the queue while waiting for the (user's) ECDSA signature.
+
 ```python
 def contribute(batch_contribution: BatchContribution,
                identity: Optional[str] = None,

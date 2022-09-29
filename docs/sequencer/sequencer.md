@@ -11,8 +11,8 @@ The primary job of the sequencer is to sequence participants in the ceremony by 
 @dataclass
 class Witness:
     running_products: List[bls.G1Point]
-    pot_pubkeys: List[bls.G2Point]
-    bls_signatures: List[bls.G1Point]
+    pot_pubkeys: List[bls.G2Point] = []
+    bls_signatures: List[bls.G1Point] = []
 ```
 
 ### `Transcript`
@@ -31,9 +31,9 @@ class Transcript:
 ```python
 @dataclass
 class Transcript
-    transcripts: List[Transcript]
-    participant_ids: List[str]
-    participant_ecdsa_signatures: List[bytes]
+    transcripts: List[Transcript] = []
+    participant_ids: List[str] = []
+    participant_ecdsa_signatures: List[bytes] = []
 ```
 
 ## Verification
@@ -230,14 +230,13 @@ Once the transcript has been updated, the sequencer MUST get a new `Contribution
 
 ```python
 def get_new_contribution_file(batch_transcript: BatchTranscript) -> BatchContribution:
-    contribution = Contribution(contribution=[])
+    batch_contribution = BatchContribution()
     for transcript in batch_transcript.transcripts:
-        contribution.contributions.append(
+        batch_contribution.contributions.append(
             Contribution(
                 num_g1_powers=transcript.num_g1_powers,
                 num_g2_powers=transcript.num_g2_powers,
                 powers_of_tau=transcript.powers_of_tau,
-                pot_pubkey='',
             )
         )
 ```
