@@ -11,9 +11,32 @@
                 {"$ref": "#/$defs/2^15SubTranscript"}
             ],
             "items": false
+        },
+        "participantIds": {
+            "type": "array",
+            "items": {
+                "oneOf": [
+                    {"$ref": "#/$defs/ethereumId"},
+                    {"$ref": "#/$defs/githubId"},
+                    {"$ref": "#/$defs/emptyString"}
+                ]
+            }
+        },
+        "participantEcdsaSignatures": {
+            "type": "array",
+            "items": {
+                "oneOf": [
+                    {"$ref": "#/$defs/ecdsaSignature"},
+                    {"$ref": "#/$defs/emptyString"}
+                ]
+            }
         }
     },
     "$defs": {
+        "emptyString": {
+            "type": "string",
+            "pattern": "$"
+        },
         "G1Point": {
             "type": "string",
             "pattern": "^0x[a-f0-9]{96}$"
@@ -21,6 +44,18 @@
         "G2Point": {
             "type": "string",
             "pattern": "^0x[a-f0-9]{192}$"
+        },
+        "ethereumId": {
+            "type": "string",
+            "pattern": "eth\\|0x[a-f\\d]{40}$"
+        },
+        "githubId": {
+            "type": "string",
+            "pattern": "git\\|@[a-z\\d](?:[a-z\\d]|-(?=[a-z\\d])){0,38}$"
+        },
+        "ecdsaSignature": {
+            "type": "string",
+            "pattern": "0x[a-f\\d]{130}$"
         },
         "2^12SubTranscript": {
             "type": "object",
@@ -74,11 +109,21 @@
                             "items": {
                                 "$ref": "#/$defs/G2Point"
                             }
+                        },
+                        "bls_signatures": {
+                            "type": "array",
+                            "items": {
+                                "oneOf": [
+                                    {"$ref": "#/$defs/G1Point"},
+                                    {"$ref": "#/$defs/emptyString"}
+                                ]
+                            }
                         }
                     },
                     "required": [
                         "runningProducts",
-                        "potPubkeys"
+                        "potPubkeys",
+                        "bls_signatures"
                     ]
                 }
             },
@@ -141,11 +186,21 @@
                             "items": {
                                 "$ref": "#/$defs/G2Point"
                             }
+                        },
+                        "bls_signatures": {
+                            "type": "array",
+                            "items": {
+                                "oneOf": [
+                                    {"$ref": "#/$defs/G1Point"},
+                                    {"$ref": "#/$defs/emptyString"}
+                                ]
+                            }
                         }
                     },
                     "required": [
                         "runningProducts",
-                        "potPubkeys"
+                        "potPubkeys",
+                        "bls_signatures"
                     ]
                 }
             },
@@ -208,11 +263,21 @@
                             "items": {
                                 "$ref": "#/$defs/G2Point"
                             }
+                        },
+                        "bls_signatures": {
+                            "type": "array",
+                            "items": {
+                                "oneOf": [
+                                    {"$ref": "#/$defs/G1Point"},
+                                    {"$ref": "#/$defs/emptyString"}
+                                ]
+                            }
                         }
                     },
                     "required": [
                         "runningProducts",
-                        "potPubkeys"
+                        "potPubkeys",
+                        "bls_signatures"
                     ]
                 }
             },
@@ -275,11 +340,21 @@
                             "items": {
                                 "$ref": "#/$defs/G2Point"
                             }
+                        },
+                        "bls_signatures": {
+                            "type": "array",
+                            "items": {
+                                "oneOf": [
+                                    {"$ref": "#/$defs/G1Point"},
+                                    {"$ref": "#/$defs/emptyString"}
+                                ]
+                            }
                         }
                     },
                     "required": [
                         "runningProducts",
-                        "potPubkeys"
+                        "potPubkeys",
+                        "bls_signatures"
                     ]
                 }
             },
