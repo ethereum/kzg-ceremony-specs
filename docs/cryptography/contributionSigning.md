@@ -107,6 +107,10 @@ Identities serve two purposes, they are the canonical method for identifying con
 
 ### Ethereum Address
 
+Ethereum Addresses are the preferred form of identification as they come with powerful signing abilities by default.
+
+An example of an Ethereum address identity would be `"eth|0x000000000000000000000000000000000000dead"`.
+
 ```python
 def eth_address_to_identity(eth_address: str) -> str:
     assert eth_address[:2] == '0x'  # Ethereum Addresses must start with '0x'.
@@ -118,6 +122,8 @@ def eth_address_to_identity(eth_address: str) -> str:
 GitHub identities are made up of two components, the user's GitHub handle and their GitHub `id` which is their unique identifier in GitHub's backend. The handle is used as it is the human-readable format, but it is not immutable. Therefore, the `id` is included to uniquely identify a user's account.
 
 GitHub IDs can be retrieved by requesting from [GitHub's REST API](https://docs.github.com/en/rest/users/users#list-users). It can trivially be done by `GET`-ing to `https://api.github.com/users/YourHandleHere`.
+
+An example of a GitHub Identity would be `git|12345678|@username`
 
 ```python
 def get_github_id(github_handle: str) -> int:
