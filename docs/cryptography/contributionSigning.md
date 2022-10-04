@@ -115,12 +115,28 @@ def eth_address_to_identity(eth_address: str) -> str:
 
 ### GitHub
 
+GitHub identities are made up of two components, the user's GitHub handle and their GitHub `id` which is their unique identifier in GitHub's backend. The handle is used as it is the human-readable format, but it is not immutable. Therefore, the `id` is included to uniquely identify a user's account.
+
+GitHub IDs can be retrieved by requesting from [GitHub's REST API](https://docs.github.com/en/rest/users/users#list-users). It can trivially be done by `GET`-ing to `https://api.github.com/users/YourHandleHere`.
+
+```python
+def get_github_id(github_handle: str) -> int:
+    # `requests` is a Python HTTP lib
+    # No error handling is done here, the API is assumed to be up and user exists
+    # Note: handle is stripped of '@' just for this API call 
+    api_response = requests.get('https://api.github.com/users/%s' % github_handle[1:])  
+    return response.json()['id']
+```
+
 ```python
 def github_handle_to_identity(github_handle: str) -> str:
     # Note that GitHub handles are limited to 39 alpha-numeric chars
-    # (Regex: /^[a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38}$/i) 
-    assert github_handle[1] == '@' # GitHub handles must start with '@'.
-    return 'git|' + github_handle.lower()
+    # (Regex: /^[a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38}$/i)
+    # Note: GitHub-ID is an integer that can be fetched from the GitHub API
+    # (https://api.github.com/users/YourHandleHere)
+    assert github_handle[0] == '@' # GitHub handles must start with '@'.
+    github_id = get_github_id(github_handle)
+    return 'git|%s|%s' % (github_id, github_handle.lower())
 ```
 
 

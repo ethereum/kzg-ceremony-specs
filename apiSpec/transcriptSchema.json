@@ -51,7 +51,7 @@
         },
         "githubId": {
             "type": "string",
-            "pattern": "^git\\|\\d\\|@[a-z\\d](?:[a-z\\d]|-(?=[a-z\\d])){0,38}$"
+            "pattern": "^git\\|\\d{1,16}\\|@[a-z\\d](?:[a-z\\d]|-(?=[a-z\\d])){0,38}$"
         },
         "ecdsaSignature": {
             "type": "string",
