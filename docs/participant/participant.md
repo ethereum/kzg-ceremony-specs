@@ -117,7 +117,7 @@ The signing of contributions with Ethereum ECDSA keys and BLS signing the user's
 
 
 ```python
-def sign_identity(contribution: Contribution, x: int, identity: str,) -> Contribution:
+def sign_identity(contribution: Contribution, x: int, identity: str) -> Contribution:
     encoded_identity = b''
     if identity[:2] == '0x':
         # Identity is a Ethereum address
