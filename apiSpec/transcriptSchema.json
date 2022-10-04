@@ -35,7 +35,7 @@
     "$defs": {
         "emptyString": {
             "type": "string",
-            "pattern": "$"
+            "pattern": "^$"
         },
         "G1Point": {
             "type": "string",
@@ -47,15 +47,15 @@
         },
         "ethereumId": {
             "type": "string",
-            "pattern": "eth\\|0x[a-f\\d]{40}$"
+            "pattern": "^eth\\|0x[a-f\\d]{40}$"
         },
         "githubId": {
             "type": "string",
-            "pattern": "git\\|@[a-z\\d](?:[a-z\\d]|-(?=[a-z\\d])){0,38}$"
+            "pattern": "^git\\|\\d\\|@[a-z\\d](?:[a-z\\d]|-(?=[a-z\\d])){0,38}$"
         },
         "ecdsaSignature": {
             "type": "string",
-            "pattern": "0x[a-f\\d]{130}$"
+            "pattern": "^0x[a-f\\d]{130}$"
         },
         "2^12SubTranscript": {
             "type": "object",
