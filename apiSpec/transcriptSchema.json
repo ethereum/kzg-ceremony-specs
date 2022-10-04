@@ -110,7 +110,7 @@
                                 "$ref": "#/$defs/G2Point"
                             }
                         },
-                        "bls_signatures": {
+                        "blsSignatures": {
                             "type": "array",
                             "items": {
                                 "oneOf": [
@@ -123,7 +123,7 @@
                     "required": [
                         "runningProducts",
                         "potPubkeys",
-                        "bls_signatures"
+                        "blsSignatures"
                     ]
                 }
             },
@@ -187,7 +187,7 @@
                                 "$ref": "#/$defs/G2Point"
                             }
                         },
-                        "bls_signatures": {
+                        "blsSignatures": {
                             "type": "array",
                             "items": {
                                 "oneOf": [
@@ -200,7 +200,7 @@
                     "required": [
                         "runningProducts",
                         "potPubkeys",
-                        "bls_signatures"
+                        "blsSignatures"
                     ]
                 }
             },
@@ -264,7 +264,7 @@
                                 "$ref": "#/$defs/G2Point"
                             }
                         },
-                        "bls_signatures": {
+                        "blsSignatures": {
                             "type": "array",
                             "items": {
                                 "oneOf": [
@@ -277,7 +277,7 @@
                     "required": [
                         "runningProducts",
                         "potPubkeys",
-                        "bls_signatures"
+                        "blsSignatures"
                     ]
                 }
             },
@@ -341,7 +341,7 @@
                                 "$ref": "#/$defs/G2Point"
                             }
                         },
-                        "bls_signatures": {
+                        "blsSignatures": {
                             "type": "array",
                             "items": {
                                 "oneOf": [
@@ -354,7 +354,7 @@
                     "required": [
                         "runningProducts",
                         "potPubkeys",
-                        "bls_signatures"
+                        "blsSignatures"
                     ]
                 }
             },
