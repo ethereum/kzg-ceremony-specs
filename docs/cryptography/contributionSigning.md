@@ -47,7 +47,7 @@ Note that the array of `contributionPubkey[]` MUST be sorted in increasing order
 
 ### `message`
 
-`message` contains the string-hex (including leading `0x`) encoded PoT-Pubkeys taken from [contribution.md](../contribution/contribution.md). These are `bls.G2Point`s corresponding to the setups for each of the numbers of powers. Thus, an example `message` corresponding with {`1`, `1`, `1`, `1`} (note this is just for demonstration purposes, these specs REQUIRE the secrets to be different) as secrets would be:
+`message` contains the string-hex (including leading `0x`) encoded PoT-Pubkeys taken from [contribution.md](../contribution/contribution.md). These are `bls.G2Point`s corresponding to each setup. Thus, an example `message` corresponding with {`1`, `1`, `1`, `1`} (note this is just for demonstration purposes, these specs REQUIRE the secrets to be different) as secrets would be:
 
 Note how these `contributionPubkeys` are sorted by `numG1Powers`, `numG2Powers`.
 ```JSON
@@ -56,7 +56,7 @@ Note how these `contributionPubkeys` are sorted by `numG1Powers`, `numG2Powers`.
         {"numG1Powers": 4096, "numG2Powers": 65, "potPubkey": "0x93e02b6052719f607dacd3a088274f65596bd0d09920b61ab5da61bbdc7f5049334cf11213945d57e5ac7d055d042b7e024aa2b2f08f0a91260805272dc51051c6e47ad4fa403b02b4510b647ae3d1770bac0326a805bbefd48056c8c121bdb8"},
         {"numG1Powers": 8192, "numG2Powers": 65, "potPubkey": "0x93e02b6052719f607dacd3a088274f65596bd0d09920b61ab5da61bbdc7f5049334cf11213945d57e5ac7d055d042b7e024aa2b2f08f0a91260805272dc51051c6e47ad4fa403b02b4510b647ae3d1770bac0326a805bbefd48056c8c121bdb8"},
         {"numG1Powers": 16384, "numG2Powers": 65, "potPubkey": "0x93e02b6052719f607dacd3a088274f65596bd0d09920b61ab5da61bbdc7f5049334cf11213945d57e5ac7d055d042b7e024aa2b2f08f0a91260805272dc51051c6e47ad4fa403b02b4510b647ae3d1770bac0326a805bbefd48056c8c121bdb8"},
-        {"numG1Powers": 32768, "numG2Powers": 65, "potPubkey": "0x93e02b6052719f607dacd3a088274f65596bd0d09920b61ab5da61bbdc7f5049334cf11213945d57e5ac7d055d042b7e024aa2b2f08f0a91260805272dc51051c6e47ad4fa403b02b4510b647ae3d1770bac0326a805bbefd48056c8c121bdb8"},
+        {"numG1Powers": 32768, "numG2Powers": 65, "potPubkey": "0x93e02b6052719f607dacd3a088274f65596bd0d09920b61ab5da61bbdc7f5049334cf11213945d57e5ac7d055d042b7e024aa2b2f08f0a91260805272dc51051c6e47ad4fa403b02b4510b647ae3d1770bac0326a805bbefd48056c8c121bdb8"}
     ]
 }
 ```
