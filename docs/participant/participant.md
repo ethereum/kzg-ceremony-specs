@@ -58,18 +58,18 @@ def schema_check(contribution_json: str, schema_path: str) -> bool:
 
 ```python
 
-def subgroup_checks(contribution: Contribution) -> bool:
-    for sub_contribution in contribution.sub_contributions:
-        if not all(bls.G1.is_in_prime_subgroup(P) for P in sub_contribution.powers_of_tau.g1_powers):
+def subgroup_checks(batch_contribution: BatchContribution) -> bool:
+    for contribution in batch_contribution.contributions:
+        if not all(bls.G1.is_in_prime_subgroup(P) for P in contribution.powers_of_tau.g1_powers):
             return False
-        if not all(bls.G2.is_in_prime_subgroup(P) for P in sub_contribution.powers_of_tau.g2_powers):
+        if not all(bls.G2.is_in_prime_subgroup(P) for P in contribution.powers_of_tau.g2_powers):
             return False
     return True
 ```
 
 ### Updating the contribution file
 
-Once the participant has fetched the `contribution.json` file, for each of the `SubCeremonies`s within they MUST perform the following actions:
+Once the participant has fetched the `contribution.json` file, for each of the `Contributions`s within they MUST perform the following actions:
 
 - Generate the secrets:
     - Sample a secret `x` from their CSPRNG as per Generating randomness above
@@ -102,15 +102,58 @@ def update_witness(contribution: Contribution, x: int) -> Contribution:
     return contribution
 ```
 
+### Signing the contributions
+
+The signing of contributions with Ethereum ECDSA keys and BLS signing the user's identity is RECOMMENDED.
+
+- Getting the encoded identity:
+    - Depending on whether the user logged in with an Ethereum Address or a GitHub handle, they will encode their identity into bytes via either 
+- BLS-Sign Identity (RECOMMENDED):
+    - Use the secret `x` as a private key to sign the user's encoded identity.
+- ECDSA Sign the user's PoT Pubkeys (RECOMMENDED)
+    - Only perform these steps if using an Ethereum Address to login
+    - Build the EIP712 `TypedData` JSON object as per [contributionSigning.md](../cryptography/contributionSigning.md)
+    - Use `web3.eth.signTypedData()` to sign the message
+
 
 ```python
-def contribute(contributionFile: BatchContribution) -> BatchContribution:
-    for contribution in contributionFile.contributions:
+def sign_identity(contribution: Contribution, x: int, identity: str) -> Contribution:
+    encoded_identity = b''
+    if identity[:2] == '0x':
+        # Identity is a Ethereum address
+        encoded_identity = eth_address_to_identity(identity).encode()
+    else:
+        # Identity is an GitHub ID
+        encoded_identity = github_handle_to_identity(identity).encode()
+    signature = bls.Sign(x, encoded_identity)
+    contribution.bls_signature = signature
+```
+
+```python
+def sign_contribution(batch_contribution: BatchContribution, ethereum_address: Optional[str]) -> BatchContribution:
+    typed_data = contribution_to_typed_data_str(contribution)  # function defined in contributionSigning.md
+    contribution.ecdsa_signature = web3.eth.sign_typed_data(ethereum_address, json.loads(typed_data))
+    return batch_contribution
+```
+
+### Tying it all together
+
+_Note:_ contribution signing can be done before the participant ever receives the contribution from the sequencer by deciding on the secret ahead of time. Doing so is the RECOMMENDED order of operations so as not to slow down the queue while waiting for the (user's) ECDSA signature.
+
+```python
+def contribute(batch_contribution: BatchContribution,
+               identity: Optional[str] = None,
+               ethereum_address: Optional[str] = None) -> BatchContribution:
+    for contribution in batch_contribution.contributions:
         x = randbelow(bls.r)
         contribution = update_powers_of_tau(contribution, x)
         contribution = update_witness(contribution, x)
+        if identity is not None:
+            contribution = sign_identity(contribution, x, identity)
         del x
-    return contributionFile
+    if ethereum_address is not None:
+        contribution = sign_contribution(contribution, ethereum_address)
+    return batch_contribution
 ```
 
 ### Clearing the memory

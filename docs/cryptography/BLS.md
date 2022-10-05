@@ -25,9 +25,9 @@ At present there isn't a wide-spread standard that defines an API with sufficien
 
 ### IRTF BLS Standard
 
-The [IRTF CFRG BLS Signature draft standard v04](https://datatracker.ietf.org/doc/html/draft-irtf-cfrg-bls-signature-04) makes use of all the API end-points needed to implement this ceremony, but does not REQUIRE implementations to expose them publicly.
+The [IRTF CFRG BLS Signature draft standard v05](https://datatracker.ietf.org/doc/html/draft-irtf-cfrg-bls-signature-05) makes use of all the API end-points needed to implement this ceremony, but does not REQUIRE implementations to expose them publicly.
 
-Implementations making use of the IRTF BLS Standards SHOULD choose the `BLS_POP_BLS12381G2_XMD:SHA-256_SSWU_RO_POP_` cyphersuite.
+Implementations making use of the IRTF BLS Standards MUST choose the `BLS_SIG_BLS12381G1_XMD:SHA-256_SSWU_RO_POP_` cyphersuite if they wish to support `bls.Sign` or `bls.Verify` functionality. _Note: this is a different cyphersuite to the Ethereum BLS-specs as PubKeys are in G2._
 
 ### Encoding & types
 
@@ -57,6 +57,14 @@ Implementations making use of the IRTF BLS Standards SHOULD choose the `BLS_POP_
 ### Pairing
 
 - `bls.pairing(P, Q)` - The bilinear map from `P` $\in\mathbb{G}_1$ and `Q` $\in\mathbb{G}_2$ to $\mathbb{G}_T$
+
+### `Sign`
+
+- `Sign(private_key, message)` (Support RECOMMENDED) generates a BLS signature under the `BLS_SIG_BLS12381G1_XMD:SHA-256_SSWU_RO_POP_` cyphersuite given a `private_key` $\in \mathbb{F}_r$ and `message`. Returns a `signature` which is of type `bls.G2Point`.
+
+### `Verify`
+
+- `Verify(pubkey, message, signature)` (Support RECOMMENDED) verifies a BLS `signature` for a given `pubkey` and `message` under the `BLS_SIG_BLS12381G1_XMD:SHA-256_SSWU_RO_POP_` cyphersuite (). Returns `True` is the BLS signature is valid.
 
 ### `KeyGen`
 

@@ -11,7 +11,8 @@ The primary job of the sequencer is to sequence participants in the ceremony by 
 @dataclass
 class Witness:
     running_products: List[bls.G1Point]
-    pot_pubkeys: List[bls.G2Point]
+    pot_pubkeys: List[bls.G2Point] = []
+    bls_signatures: List[bls.G1Point] = []
 ```
 
 ### `Transcript`
@@ -30,7 +31,9 @@ class Transcript:
 ```python
 @dataclass
 class Transcript
-    transcripts: List[Transcript]
+    transcripts: List[Transcript] = []
+    participant_ids: List[str] = []
+    participant_ecdsa_signatures: List[bytes] = []
 ```
 
 ## Verification
@@ -58,15 +61,15 @@ def schema_check(contribution_json: str, schema_path: str) -> bool:
 This check verifies that the number of $\mathbb{G}_1$ and $\mathbb{G}_2$ powers meets expectations.
 
 ```python
-def parameter_check(contribution: BatchContribution, transcript: BatchTranscript) -> bool:
-    for (sub_contribution, sub_transcript) in zip(contribution.contributions, transcript.transcripts):
-        if sub_contribution.num_g1_powers != sub_transcript.num_g1_powers:
+def parameter_check(batch_contribution: BatchContribution, batch_transcript: BatchTranscript) -> bool:
+    for (contribution, transcript) in zip(batch_contribution.contributions, batch_transcript.transcripts):
+        if contribution.num_g1_powers != transcript.num_g1_powers:
             return False
-        if sub_contribution.num_g2_powers != sub_transcript.num_g2_powers:
+        if contribution.num_g2_powers != transcript.num_g2_powers:
             return False
-        if sub_contribution.num_g1_powers != len(sub_contribution.powers_of_tau.g1_powers):
+        if contribution.num_g1_powers != len(contribution.powers_of_tau.g1_powers):
             return False
-        if sub_contribution.num_g2_powers != len(sub_contribution.powers_of_tau.g2_powers):
+        if contribution.num_g2_powers != len(contribution.powers_of_tau.g2_powers):
             return False
     return True
 ```
@@ -81,12 +84,12 @@ def parameter_check(contribution: BatchContribution, transcript: BatchTranscript
 
 ```python
 def subgroup_checks(contribution: BatchContribution) -> bool:
-    for sub_contribution in contribution.contributions:
-        if not all(bls.G1.is_in_prime_subgroup(P) for P in sub_contribution.powers_of_tau.g1_powers):
+    for contribution in contribution.contributions:
+        if not all(bls.G1.is_in_prime_subgroup(P) for P in contribution.powers_of_tau.g1_powers):
             return False
-        if not all(bls.G2.is_in_prime_subgroup(P) for P in sub_contribution.powers_of_tau.g2_powers):
+        if not all(bls.G2.is_in_prime_subgroup(P) for P in contribution.powers_of_tau.g2_powers):
             return False
-        if not bls.G2.is_in_prime_subgroup(sub_contribution.pot_pubkey):
+        if not bls.G2.is_in_prime_subgroup(contribution.pot_pubkey):
             return False
     return True
 ```
@@ -94,8 +97,8 @@ def subgroup_checks(contribution: BatchContribution) -> bool:
 - __Non-zero check__ - Check that the `pot_pubkey`s are not equal to the point at infinity.
 ```python
 def non_zero_check(contribution: BatchContribution) -> bool:
-    for sub_contribution in contribution.contributions:
-        if bls.G2.is_inf(sub_contribution.pot_pubkey):
+    for contribution in contribution.contributions:
+        if bls.G2.is_inf(contribution.pot_pubkey):
             return False
     return True
 ```
@@ -107,11 +110,11 @@ _Note:_ The following pairing checks SHOULD be batched via a random linear combi
 - __Tau update construction__ - Verify that the latest contribution is correctly built on top of the previous ones. Let $[\tau^1_{k}]_1$ be the first power of tau from the most recent ($k$-th)`contribution` and $[\pi]_1^{k-1} := [\tau^1_{k-1}]_1$ be the transcript after updating from the previous correct `contribution`.  Verifying that $\tau$ was updated correctly can then be performed by checking $e([\pi_{k-1}]_1, [x_k]_2) \stackrel{?}{=}e([\pi_{k}]_1, g_2)$
 
 ```python
-def tau_update_check(contribution: BatchContribution, transcript: BatchTranscript) -> bool:
-    for (sub_contribution, sub_transcript) in zip(contribution.contributions, transcript.transcripts):
-        tau = sub_contribution.powers_of_tau.g1_powers[1]
-        transcript_product = sub_transcript.witness.running_products
-        pk = sub_contribution.pot_pubkey
+def tau_update_check(batch_contribution: BatchContribution, batch_transcript: BatchTranscript) -> bool:
+    for (contribution, transcript) in zip(batch_contribution.contributions, batch_transcript.transcripts):
+        tau = contribution.powers_of_tau.g1_powers[1]
+        transcript_product = transcript.witness.running_products
+        pk = contribution.pot_pubkey
         if bls.pairing(transcript_product, pk) != bls.pairing(tau, bls.G2.g2):
                 return False
     return True
@@ -121,9 +124,9 @@ def tau_update_check(contribution: BatchContribution, transcript: BatchTranscrip
 
 ```python
 def g1_powers_check(contribution: BatchContribution) -> bool:
-    for sub_contribution in contribution.contributions:
-        powers = sub_contribution.powers_of_tau.g1_powers
-        pi = sub_contribution.powers_of_tau.g2_powers[1]
+    for contribution in contribution.contributions:
+        powers = contribution.powers_of_tau.g1_powers
+        pi = contribution.powers_of_tau.g2_powers[1]
         for power, next_power in zip(powers[:-1], powers[1:]):
             if bls.pairing(next_power, bls.G2.g2) != bls.pairing(power, pi):
                 return False
@@ -134,33 +137,91 @@ def g1_powers_check(contribution: BatchContribution) -> bool:
 
 ```python
 def g2_powers_check(transcript: BatchTranscript) -> bool:
-    for sub_contribution in transcript.contributions:
-        g1_powers = sub_contribution.powers_of_tau.g1_powers
-        g2_powers = sub_contribution.powers_of_tau.g2_powers
+    for contribution in transcript.contributions:
+        g1_powers = contribution.powers_of_tau.g1_powers
+        g2_powers = contribution.powers_of_tau.g2_powers
         for g1_power, g2_power in zip(g1_powers, g2_powers):
             if bls.pairing(bls.G1.g1, g2_power) != bls.pairing(g1_power, bls.G2.g2):
                 return False
     return True
 ```
 
-## Updating the transcript
+### Verifying a `Contribution`
 
-Once the sequencer has performed the above Verification checks, they MUST update the transcript.
-
+The sequencer MUST verify all above checks:
 
 ```python
-def update_transcript(old_transcript: BatchTranscript, contribution: BatchContribution) -> BatchTranscript:
-    new_transcript = Transcript(transcripts=[])
-    for (sub_transcript, sub_ceremony) in zip(old_transcript.transcripts, contribution.ceremonies):
-        new_sub_transcript = SubTranscript(
-            num_g1_powers=sub_transcript.num_g1_powers,
-            num_g2_powers=sub_transcript.num_g2_powers,
-            powers_of_tau=sub_ceremony.powers_of_tau,
+def verify_contribution(contribution: contribution, identity: str) -> bool:
+    for check in [schema_check, parameter_check, subgroup_checks, tau_update_check, g1_powers_check, g2_powers_check]:
+        if not check(contribution):
+            return False
+    return True
+```
+
+## Signature Verification & Pruning
+
+The sequencer MUST verify and prune the signatures in the contributions.
+
+- __BLS Signature Verification__ - Verify that the participant correctly signed their contributor identity. It is assumed that signature encoding errors return `False`.
+
+```python
+def bls_signature_check(contribution: Contribution, identity: str) -> bool:
+    for contribution in transcript.contributions:
+        pubkey = contribution.pot_pubkey
+        message = identity
+        signature = contribution.bls_signature
+        if not bls.Verify(pubkey, message, signature):
+            return False
+    return True
+```
+
+- __ECDSA Signature Verification__ - Verify that the participant correctly signed their PoT Pubkeys. It is assumed that signature encoding errors return `False`.
+
+```python
+def ecdsa_signature_check(contribution: Contribution, identity: str) -> bool:
+    ecdsa_signature = contribution.ecdsa_signature
+    typed_data = contribution_to_typed_data_str(contribution)
+    message = encode_structured_data(typed_data)  # Encode Data as per EIP 712
+    recovered_address = recover_message(message, contribution.ecdsa_signature)  # Address recovery
+    return recovered_address == identity[4:]  # Strip off leading 'eth|' padding from id & verify
+```
+
+### Signature Pruning
+
+The sequencer MUST prune invalid signatures from the contribution.
+
+```python
+def prune_invalid_signatures(contribution: Contribution, identity: str) -> Contribution:
+    if not bls_signature_check(contribution, identity):
+        for contribution in contribution:
+            contribution.pot_pubkey = ''
+    if identity[:4] != 'eth|' or not ecdsa_signature_check(contribution, identity):
+        contribution.bls_signature = ''
+    return contribution
+```
+
+## Updating the transcript
+
+Once the sequencer has performed the above verification checks and assuming they all passed, and the signatures have been pruned as above, they MUST update the transcript. Thy do so by adding the `contribution` to the `transcript`. The `identity` is a string that represents the user. It is generated by taking the Ethereum address or GitHub account from the users' login session and feeding them into `eth_address_to_identity` or `github_handle_to_identity` respectively.
+
+```python
+def update_transcript(old_batch_transcript: BatchTranscript, batch_contribution: BatchContribution, identity: str) -> BatchTranscript:
+    new_batch_transcript = BatchTranscript()
+    for (transcript, contribution) in zip(old_batch_transcript.transcripts, batch_contribution.contributions):
+        new_transcript = Transcript(
+            num_g1_powers=transcript.num_g1_powers,
+            num_g2_powers=transcript.num_g2_powers,
+            powers_of_tau=contribution.powers_of_tau,
             witness=Witness(
-                running_products=sub_transcript.witness.running_products + [sub_ceremony.powers_of_tau.g1_powers[1]],
-                pot_pubkeys=sub_transcript.witness.pot_pubkeys + [sub_ceremony.pot_pubkey],
+                running_products=transcript.witness.running_products + [contribution.powers_of_tau.g1_powers[1]],
+                pot_pubkeys=transcript.witness.pot_pubkeys + [contribution.pot_pubkey],
+                bls_signatures=transcript.witness.bls_signatures + [contribution.bls_signature]
             )
         )
+        new_batch_transcript.transcripts.append(new_transcript)
+    new_batch_transcript.participant_ids = old_batch_transcript.participant_ids + [identity]
+    new_batch_transcript.participant_ecdsa_signatures = old_batch_transcript.participant_ecdsa_signatures + [contribution.ecdsa_signature]
+    return new_batch_transcript
 ```
 
 ## Generating the contribution file for the next participant
@@ -168,15 +229,14 @@ def update_transcript(old_transcript: BatchTranscript, contribution: BatchContri
 Once the transcript has been updated, the sequencer MUST get a new `Contribution` file to send to the next participant.
 
 ```python
-def get_new_contribution_file(transcript: BatchTranscript) -> BatchContribution:
-    contribution = Contribution(contribution=[])
-    for sub_transcript in transcript.transcripts:
-        contribution.contributions.append(
+def get_new_contribution_file(batch_transcript: BatchTranscript) -> BatchContribution:
+    batch_contribution = BatchContribution()
+    for transcript in batch_transcript.transcripts:
+        batch_contribution.contributions.append(
             Contribution(
-                num_g1_powers=sub_transcript.num_g1_powers,
-                num_g2_powers=sub_transcript.num_g2_powers,
-                powers_of_tau=sub_transcript.powers_of_tau,
-                pot_pubkey='',
+                num_g1_powers=transcript.num_g1_powers,
+                num_g2_powers=transcript.num_g2_powers,
+                powers_of_tau=transcript.powers_of_tau,
             )
         )
 ```
