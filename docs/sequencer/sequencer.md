@@ -83,8 +83,8 @@ def parameter_check(batch_contribution: BatchContribution, batch_transcript: Bat
     - __PoTPubkey Subgroup checks__ - Check that the PoTPubkey is actually an element of the prime-ordered subgroup.
 
 ```python
-def subgroup_checks(contribution: BatchContribution) -> bool:
-    for contribution in contribution.contributions:
+def subgroup_checks(batch_contribution: BatchContribution) -> bool:
+    for contribution in batch_contribution.contributions:
         if not all(bls.G1.is_in_prime_subgroup(P) for P in contribution.powers_of_tau.g1_powers):
             return False
         if not all(bls.G2.is_in_prime_subgroup(P) for P in contribution.powers_of_tau.g2_powers):
@@ -96,8 +96,8 @@ def subgroup_checks(contribution: BatchContribution) -> bool:
 
 - __Non-zero check__ - Check that the `pot_pubkey`s are not equal to the point at infinity.
 ```python
-def non_zero_check(contribution: BatchContribution) -> bool:
-    for contribution in contribution.contributions:
+def non_zero_check(batch_contribution: BatchContribution) -> bool:
+    for contribution in batch_contribution.contributions:
         if bls.G2.is_inf(contribution.pot_pubkey):
             return False
     return True
@@ -123,8 +123,8 @@ def tau_update_check(batch_contribution: BatchContribution, batch_transcript: Ba
 - __Correct construction of G1 Powers__ - Verify that the $\mathbb{G}_1$ points provided are indeed incremental powers of (the same) $\tau$. This check is done by asserting that the next $\mathbb{G}_1$ point is the result of multiplying the previous one with $\tau$: $e([\tau^{i + 1}]_1, g_2) \stackrel{?}{=}e([\tau^i]_1, [\tau]_2)$. Note that the check that the $\tau$ in $[\tau]_2$ is the same as $\pi_k$ is done via the `g2_powers_check()` below which verifies that $e([\tau^i]_1, g_2) \stackrel{?}{=}e(g_2, [\tau^i]_2)$ and $[\tau^i]_1 = [\pi_k]_1$ due to the `Transcript` updates rules.
 
 ```python
-def g1_powers_check(contribution: BatchContribution) -> bool:
-    for contribution in contribution.contributions:
+def g1_powers_check(batch_contribution: BatchContribution) -> bool:
+    for contribution in batch_contribution.contributions:
         powers = contribution.powers_of_tau.g1_powers
         pi = contribution.powers_of_tau.g2_powers[1]
         for power, next_power in zip(powers[:-1], powers[1:]):
@@ -136,8 +136,8 @@ def g1_powers_check(contribution: BatchContribution) -> bool:
 - __Correct construction of G2 Powers__ - Verify that the $\mathbb{G}_2$ points provided are indeed incremental powers of $\tau$ and that $\tau$ is the same across $\mathbb{G}_1$ and $\mathbb{G}_2$. This check is done by verifying that $\tau^i$ is the same across $[\tau^i]_1$ and $[\tau^i]_2$. $e([\tau^i]_1, g_2) \stackrel{?}{=}e(g_2, [\tau^i]_2)$
 
 ```python
-def g2_powers_check(transcript: BatchTranscript) -> bool:
-    for contribution in transcript.contributions:
+def g2_powers_check(batch_contribution: BatchContribution) -> bool:
+    for contribution in batch_contribution.contributions:
         g1_powers = contribution.powers_of_tau.g1_powers
         g2_powers = contribution.powers_of_tau.g2_powers
         for g1_power, g2_power in zip(g1_powers, g2_powers):
@@ -151,9 +151,9 @@ def g2_powers_check(transcript: BatchTranscript) -> bool:
 The sequencer MUST verify all above checks:
 
 ```python
-def verify_contribution(contribution: contribution, identity: str) -> bool:
+def verify_batch_contribution(batch_contribution: BatchContribution, identity: str) -> bool:
     for check in [schema_check, parameter_check, subgroup_checks, tau_update_check, g1_powers_check, g2_powers_check]:
-        if not check(contribution):
+        if not check(batch_contribution):
             return False
     return True
 ```
@@ -165,8 +165,8 @@ The sequencer MUST verify and prune the signatures in the contributions.
 - __BLS Signature Verification__ - Verify that the participant correctly signed their contributor identity. It is assumed that signature encoding errors return `False`.
 
 ```python
-def bls_signature_check(contribution: Contribution, identity: str) -> bool:
-    for contribution in transcript.contributions:
+def bls_signature_check(batch_contribution: BatchContribution, identity: str) -> bool:
+    for contribution in batch_contribution.contributions:
         pubkey = contribution.pot_pubkey
         message = identity
         signature = contribution.bls_signature
@@ -178,9 +178,9 @@ def bls_signature_check(contribution: Contribution, identity: str) -> bool:
 - __ECDSA Signature Verification__ - Verify that the participant correctly signed their PoT Pubkeys. It is assumed that signature encoding errors return `False`.
 
 ```python
-def ecdsa_signature_check(contribution: Contribution, identity: str) -> bool:
-    ecdsa_signature = contribution.ecdsa_signature
-    typed_data = contribution_to_typed_data_str(contribution)
+def ecdsa_signature_check(batch_contribution: BatchContribution, identity: str) -> bool:
+    ecdsa_signature = batch_contribution.ecdsa_signature
+    typed_data = contribution_to_typed_data_str(batch_contribution)
     message = encode_structured_data(typed_data)  # Encode Data as per EIP 712
     recovered_address = recover_message(message, contribution.ecdsa_signature)  # Address recovery
     return recovered_address == identity[4:]  # Strip off leading 'eth|' padding from id & verify
@@ -188,24 +188,30 @@ def ecdsa_signature_check(contribution: Contribution, identity: str) -> bool:
 
 ### Signature Pruning
 
-The sequencer MUST prune invalid signatures from the contribution.
+The sequencer MUST prune invalid signatures from the contribution. If any of the BLS signatures are invalid, they must all be set to `''` and if the ECDSA signature is invalid, it must also be set to `''`.
 
 ```python
-def prune_invalid_signatures(contribution: Contribution, identity: str) -> Contribution:
-    if not bls_signature_check(contribution, identity):
-        for contribution in contribution:
-            contribution.pot_pubkey = ''
-    if identity[:4] != 'eth|' or not ecdsa_signature_check(contribution, identity):
-        contribution.bls_signature = ''
-    return contribution
+def prune_invalid_signatures(batch_contribution: BatchContribution, identity: str) -> BatchContribution:
+    if not all([bls_signature_check(contribution, identity) for contribution in batch_contribution]):
+        for contribution in batch_contribution:
+            contribution.bls_signature = ''
+    if identity[:4] != 'eth|' or not ecdsa_signature_check(batch_contribution, identity):
+        batch_contribution.bls_signature = ''
+    return batch_contribution
 ```
 
 ## Updating the transcript
 
-Once the sequencer has performed the above verification checks and assuming they all passed, and the signatures have been pruned as above, they MUST update the transcript. Thy do so by adding the `contribution` to the `transcript`. The `identity` is a string that represents the user. It is generated by taking the Ethereum address or GitHub account from the users' login session and feeding them into `eth_address_to_identity` or `github_handle_to_identity` respectively.
+Once the sequencer has performed the above verification checks and assuming they all passed, and the signatures have been pruned as above, they MUST update the transcript. Thy do so by adding the `batch_contribution` to the `batch_transcript`. The `identity` is a string that represents the user. It is generated by taking the Ethereum address or GitHub account from the users' login session and feeding them into `eth_address_to_identity` or `github_handle_to_identity` respectively.
 
 ```python
-def update_transcript(old_batch_transcript: BatchTranscript, batch_contribution: BatchContribution, identity: str) -> BatchTranscript:
+def update_transcript(
+        old_batch_transcript: BatchTranscript,
+        batch_contribution: BatchContribution,
+        identity: str) -> BatchTranscript:
+    if not verify_batch_contribution(batch_contribution):
+        return old_batch_transcript
+    batch_contribution = prune_invalid_signatures(batch_contribution)
     new_batch_transcript = BatchTranscript()
     for (transcript, contribution) in zip(old_batch_transcript.transcripts, batch_contribution.contributions):
         new_transcript = Transcript(
@@ -220,7 +226,8 @@ def update_transcript(old_batch_transcript: BatchTranscript, batch_contribution:
         )
         new_batch_transcript.transcripts.append(new_transcript)
     new_batch_transcript.participant_ids = old_batch_transcript.participant_ids + [identity]
-    new_batch_transcript.participant_ecdsa_signatures = old_batch_transcript.participant_ecdsa_signatures + [contribution.ecdsa_signature]
+    new_batch_transcript.participant_ecdsa_signatures =\
+        old_batch_transcript.participant_ecdsa_signatures + [batch_contribution.ecdsa_signature]
     return new_batch_transcript
 ```
 
