@@ -72,7 +72,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Contribution'
+              $ref: 'contributionSchema.json'
       responses:
         200:
           description: successful operation
@@ -126,7 +126,9 @@ paths:
           content:
             application/json:
               schema:
-                type: object
+                $ref: 'contributionSchema.json'
+        204:
+          description: Not ready for contribution. Someone else is currently contributing, try again soon.
   /auth/request_link:
     post:
       tags:
@@ -189,10 +191,6 @@ components:
     CeremonyStatus:
       type: object
       description: Overall ceremony summary metrics
-    Contribution:
-      type: object
-      description: The prior contributor's submission, ready to be updated. Refer
-        to contributionSchema.json for the description of this content.
     ContributionStatus:
       required:
       - id
