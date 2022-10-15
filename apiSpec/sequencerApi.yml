@@ -44,12 +44,12 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BatchTranscript'
+                $ref: 'transcriptSchema.json'
   /contribute:
     post:
       tags:
       - Contribution
-      summary: Returns a completed contribution
+      summary: Uploads a contribution and returns a signed contribution receipt
       description: Advises that the computation has completed and returns the updated
         transcript
       requestBody:
@@ -63,27 +63,39 @@ paths:
           content:
             application/json:
               schema:
-                type: string
+                $ref: '#/components/schemas/ContributionReceipt'
+        400:
+          description: invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContributionError'
+      security:
+        - BearerAuth: []
   /contribution/abort:
     post:
       tags:
       - Contribution 
       summary: | 
-        Indicates an error while contributing. Clients must use this endpoint 
+        Indicates an error while contributing (e.g. an error when performing
+        crypto calculations). Clients should use this endpoint 
         in the event of an unrecoverable error after
-        contribution has started.
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Participant'
+        contribution has started to allow other users to participate sooner.
       responses:
         200:
-          description: successful operation
+          description: contribution was aborted, another participant will be selected
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ContributionStatus'
+                type: object
+        400:
+          description: invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContributionAbortError'
+      security:
+        - BearerAuth: []
   /lobby/try_contribute:
     post:
       tags:
@@ -91,30 +103,47 @@ paths:
       summary: Check-in and request a contribution file
       description: Check-in with the sequencer, thus confirming the client's liveness.
         Response will indicate whether the client should start working on the contribution or continue pining via /lobby/try_contribute all.
-      requestBody:
-        description: Check-in and request a contribution file
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ParticipantQueueStatus'
-        required: true
       responses:
-        400:
-          description: Invalid
-          content:
-            application/json:
-              schema:
-                type: object
         200:
-          description: successful operation
+          description: User was selected for contribution. Use the returned contribution file to calculate the contribution and then post /contribute
           content:
             application/json:
               schema:
                 $ref: 'contributionSchema.json'
         204:
           description: Not ready for contribution. Someone else is currently contributing, try again soon.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    enum: ["another contribution in progress"]
+        400:
+          description: rate limited
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    enum: ["call came too early. rate limited"]
+        401:
+          description: unauthorized access
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    enum: ["unknown session id"]
+      security:
+        - BearerAuth: []
   /auth/request_link:
-    post:
+    get:
       tags:
       - Login
       summary: Get links to Ethereum and GitHub login processes
@@ -163,6 +192,49 @@ components:
           maxItems: 4
       required:
         - transcripts
+    CeremonyStatus:
+      type: object
+      description: Overall ceremony summary metrics
+      properties:
+        lobby_size:
+          type: number
+          format: int32
+        num_contributions:
+          type: number
+          format: int32
+        sequencer_address:
+          description: Public Ethereum address of sequencer server, uses captitals-based checksum. Can be used to validate contribution receipt signatures.
+          type: string
+    ContributionAbortError:
+      type: object
+      description: Contribution couldn't be aborted
+      properties:
+        error:
+          type: string
+          enum:
+            - "invalid Bearer token"
+            - "not your turn to participate"
+    ContributionError:
+      type: object
+      description: Contribution couldn't be accepted
+      properties:
+        error:
+          type: string
+          enum:
+            - "invalid Bearer token"
+            - "not your turn to participate"
+            - "contribution invalid: Unexpected number of contributions: expected {0}, got {1}"
+            - "contribution invalid: Unexpected number of contributions: Error in contribution {0}: ref:CeremonyError"
+    ContributionReceipt:
+      type: object
+      description: Confirmation that a contribution was received successfully. Participant should keep the receipt to be able to validate that 1) it was signed by the sequencer 2) the contribution was included in the final transcript
+      properties:
+        receipt:
+          type: string
+          description: "serialized JSON (to avoid unordered keys) with properties: id_token: { sub: string, nickname: string, provider: string, exp: u64 }, g2: [string] "
+        signature:
+          type: string
+          description: ECDSA eth signature of the receipt string
     Transcript:
       type: object
       description: Current transcript
@@ -206,6 +278,8 @@ components:
         - numG2Powers
         - powersOfTau
         - witness
+
+
     ContributionResult:
       required:
       - id
@@ -217,19 +291,6 @@ components:
           type: string
         contribution:
           type: object
-    CeremonyStatus:
-      type: object
-      description: Overall ceremony summary metrics
-      properties:
-        lobby_size:
-          type: number
-          format: int32
-        num_contributions:
-          type: number
-          format: int32
-        sequencer_address:
-          description: Public Ethereum address of sequencer server, uses captitals-based checksum. Can be used to validate contribution receipt signatures.
-          type: string
     ContributionStatus:
       required:
       - id
@@ -300,6 +361,9 @@ components:
         ethAddress:
           type: string
   securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
     authWithGithub:
       type: apiKey
       name: API_KEY
