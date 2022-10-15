@@ -10,6 +10,7 @@ info:
   version: 1.0.0
 servers:
 - url: https://us-central1-trustedsetuptest.cloudfunctions.net
+- url: https://kzg-ceremony-sequencer-dev.fly.dev
 tags:
   - name: Ceremony
     description: Ceremony progress and status
@@ -26,41 +27,24 @@ paths:
       - Ceremony
       summary: Request a summary of the ceremony status (contributions, lobby size)
       responses:
-        400:
-          description: Invalid Order
-          content:
-            application/json:
-              schema:
-                type: object
         200:
           description: successful operation
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/CeremonyStatus'
-      security:
-      - authWithEth: []
   /info/current_state:
     get:
       tags:
       - Ceremony
       summary: Request a current transcript
       responses:
-        400:
-          description: Invalid Order
-          content:
-            application/json:
-              schema:
-                type: object
         200:
           description: successful operation
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CeremonyStatus'
-      security:
-      - authWithEth: []
-
+                $ref: '#/components/schemas/BatchTranscript'
   /contribute:
     post:
       tags:
@@ -167,16 +151,61 @@ paths:
                 $ref: '#/components/schemas/AuthResponse'
 components:
   schemas:
-    ApiResponse:
+    BatchTranscript:
       type: object
+      description: Current transcripts for all 4 sub-ceremonies
       properties:
-        message:
-          type: string
-        type:
-          type: string
-        code:
-          type: integer
+        transcripts:
+          type: array
+          items:
+            $ref: '#/components/schemas/Transcript'
+          minItems: 4
+          maxItems: 4
+      required:
+        - transcripts
+    Transcript:
+      type: object
+      description: Current transcript
+      properties:
+        numG1Powers:
+          type: number
           format: int32
+        numG2Powers:
+          type: number
+          format: int32
+        powersOfTau:
+          type: object
+          properties:
+            G1Powers:
+              type: array
+              items:
+                type: string
+            G2Powers:
+              type: array
+              items:
+                type: string
+          required:
+            - G1Powers
+            - G2Powers
+        witness:
+          type: object
+          properties:
+            runningProducts:
+              type: array
+              items:
+                type: string
+            potPubkeys:
+              type: array
+              items:
+                type: string
+          required:
+            - runningProducts
+            - potPubkeys
+      required:
+        - numG1Powers
+        - numG2Powers
+        - powersOfTau
+        - witness
     ContributionResult:
       required:
       - id
@@ -191,6 +220,16 @@ components:
     CeremonyStatus:
       type: object
       description: Overall ceremony summary metrics
+      properties:
+        lobby_size:
+          type: number
+          format: int32
+        num_contributions:
+          type: number
+          format: int32
+        sequencer_address:
+          description: Public Ethereum address of sequencer server, uses captitals-based checksum. Can be used to validate contribution receipt signatures.
+          type: string
     ContributionStatus:
       required:
       - id
