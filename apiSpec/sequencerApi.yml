@@ -108,24 +108,20 @@ paths:
         Response will indicate whether the client should start working on the contribution or continue pining via /lobby/try_contribute all.
       responses:
         200:
-          description:
-            User was selected for contribution. Use the returned contribution file to calculate participant's points and then post results to /contribute
-            See contributionSchema.json for more detailed schema definition.
+          description: Check-in successful. See response to determine if the participant was selected to be a contributor.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BatchContribution'
-                
-        302:
-          description: Not ready for contribution. Someone else is currently contributing, try again soon.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error:
-                    type: string
-                    enum: ["another contribution in progress"]
+                oneOf:
+                  - $ref: '#/components/schemas/BatchContribution'
+                    description: 
+                      User was selected for contribution. Use the returned contribution file to calculate participant's points and then post results to /contribute
+                      See contributionSchema.json for more detailed schema definition.
+                  - type: object
+                    properties:
+                      error:
+                        type: string
+                        enum: ["another contribution in progress"]
         400:
           description: rate limited
           content:
