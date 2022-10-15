@@ -25,7 +25,8 @@ paths:
     get:
       tags:
       - Ceremony
-      summary: Request a summary of the ceremony status (contributions, lobby size)
+      summary: Get ceremony status
+      description: Request a summary of the ceremony status (contributions, lobby size)
       responses:
         200:
           description: successful operation
@@ -40,23 +41,24 @@ paths:
       summary: Request a current transcript
       responses:
         200:
-          description: successful operation
+          description: See transcriptSchema.json for more detailed schema definition.
           content:
             application/json:
               schema:
-                $ref: 'transcriptSchema.json'
+                $ref: '#/components/schemas/BatchTranscript'
   /contribute:
     post:
       tags:
       - Contribution
-      summary: Uploads a contribution and returns a signed contribution receipt
-      description: Advises that the computation has completed and returns the updated
-        transcript
+      summary: Uploads a contribution
+      description:
+        Uploads a contribution and returns a signed contribution receipt
+        See contributionSchema.json for more detailed schema definition.
       requestBody:
         content:
           application/json:
             schema:
-              $ref: 'contributionSchema.json'
+                $ref: '#/components/schemas/BatchContribution'
       responses:
         200:
           description: successful operation
@@ -76,7 +78,8 @@ paths:
     post:
       tags:
       - Contribution 
-      summary: | 
+      summary: Cancel contribution attempt
+      description: | 
         Indicates an error while contributing (e.g. an error when performing
         crypto calculations). Clients should use this endpoint 
         in the event of an unrecoverable error after
@@ -105,12 +108,15 @@ paths:
         Response will indicate whether the client should start working on the contribution or continue pining via /lobby/try_contribute all.
       responses:
         200:
-          description: User was selected for contribution. Use the returned contribution file to calculate the contribution and then post /contribute
+          description:
+            User was selected for contribution. Use the returned contribution file to calculate participant's points and then post results to /contribute
+            See contributionSchema.json for more detailed schema definition.
           content:
             application/json:
               schema:
-                $ref: 'contributionSchema.json'
-        204:
+                $ref: '#/components/schemas/BatchContribution'
+                
+        302:
           description: Not ready for contribution. Someone else is currently contributing, try again soon.
           content:
             application/json:
@@ -144,14 +150,15 @@ paths:
         - BearerAuth: []
   /auth/request_link:
     get:
+      parameters:
+        - in: query
+          name: redirect_to
+          schema:
+            type: string
+          description: After successful authentication, user will be redirected to {redirect_to}?session_id=xxx&sub=xxx&nickname=xxx&provider=xxx&exp=xxx. Session id can be used as Bearer token for authenticated endpoints."
       tags:
       - Login
       summary: Get links to Ethereum and GitHub login processes
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/AuthRequest'
       responses:
         403:
           description: Invalid HTTP method
@@ -180,6 +187,16 @@ paths:
                 $ref: '#/components/schemas/AuthResponse'
 components:
   schemas:
+    BatchContribution:
+      type: object
+      description: ""
+      properties:
+        contributions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Contribution'
+          minItems: 4
+          maxItems: 4
     BatchTranscript:
       type: object
       description: Current transcripts for all 4 sub-ceremonies
@@ -192,6 +209,37 @@ components:
           maxItems: 4
       required:
         - transcripts
+    Contribution:
+      type: object
+      description: ""
+      properties:
+        numG1Powers:
+          type: number
+          format: int32
+        numG2Powers:
+          type: number
+          format: int32
+        powersOfTau:
+          type: object
+          properties:
+            G1Powers:
+              type: array
+              items:
+                type: string
+            G2Powers:
+              type: array
+              items:
+                type: string
+          required:
+            - G1Powers
+            - G2Powers
+        potPubkey:
+          type: string
+      required:
+        - numG1Powers
+        - numG2Powers
+        - powersOfTau
+        - potPubkey
     CeremonyStatus:
       type: object
       description: Overall ceremony summary metrics
@@ -278,70 +326,6 @@ components:
         - numG2Powers
         - powersOfTau
         - witness
-
-
-    ContributionResult:
-      required:
-      - id
-      type: object
-      description: |
-        The updated SRS
-      properties:
-        id:
-          type: string
-        contribution:
-          type: object
-    ContributionStatus:
-      required:
-      - id
-      type: object
-      description: |
-        Used to report an error while in the computation phase
-      properties:
-        id:
-          type: string
-        reason:
-          type: string
-    ParticipantQueueStatus:
-      required:
-      - queuePosition
-      - nextCheckinTime
-      - queueStatus
-      - id
-      type: object
-      description: |
-        Status of the participant's queue position, including details of the next expected check-in time
-      properties:
-        queuePosition:
-          type: integer
-          format: int32
-        nextCheckinTime:
-          type: integer
-          format: int32
-        queueStatus:
-          type: string
-          enum:
-          - notQueued
-          - queued
-          - readyToContribute
-          - contributing
-          - expired
-        id:
-          type: string
-    Participant:
-      required:
-      - idType
-      - id
-      type: object
-      properties:
-        idType:
-          type: string
-          enum:
-          - ethAddress
-          - ensName
-          - githubHandle
-        id:
-          type: string
     AuthResponse:
       type: object
       description: |
@@ -350,15 +334,6 @@ components:
         participant:
           type: object
         token:
-          type: string
-    AuthRequest:
-      type: object
-      description: |
-        A JSON object. The sig property must contain a hex representation of a message - 'ZKParty sign-in' - signed with the private key for ethAddress using Ethereum standard signing (i.e. the  message is prefixed by \x19Ethereum Signed Message ...) The Eth account must have a nonce >= 3 on mainnet.
-      properties:
-        sig:
-          type: string
-        ethAddress:
           type: string
   securitySchemes:
     BearerAuth:
@@ -372,6 +347,6 @@ components:
       type: oauth2
       description: Firebase OAuth
       flows:
-        clientCredentials:
+        implicit:
           authorizationUrl: https://us-central1-trustedsetuptest.cloudfunctions.net/Auth-Auth
-...
+          scopes: {}
