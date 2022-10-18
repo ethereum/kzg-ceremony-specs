@@ -10,6 +10,7 @@ info:
   version: 1.0.0
 servers:
 - url: https://us-central1-trustedsetuptest.cloudfunctions.net
+- url: https://kzg-ceremony-sequencer-dev.fly.dev
 tags:
   - name: Ceremony
     description: Ceremony progress and status
@@ -24,82 +25,80 @@ paths:
     get:
       tags:
       - Ceremony
-      summary: Request a summary of the ceremony status (contributions, lobby size)
+      summary: Get ceremony status
+      description: Request a summary of the ceremony status (contributions, lobby size)
       responses:
-        400:
-          description: Invalid Order
-          content:
-            application/json:
-              schema:
-                type: object
         200:
           description: successful operation
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/CeremonyStatus'
-      security:
-      - authWithEth: []
   /info/current_state:
     get:
       tags:
       - Ceremony
       summary: Request a current transcript
       responses:
-        400:
-          description: Invalid Order
-          content:
-            application/json:
-              schema:
-                type: object
         200:
-          description: successful operation
+          description: See transcriptSchema.json for more detailed schema definition.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CeremonyStatus'
-      security:
-      - authWithEth: []
-
+                $ref: '#/components/schemas/BatchTranscript'
   /contribute:
     post:
       tags:
       - Contribution
-      summary: Returns a completed contribution
-      description: Advises that the computation has completed and returns the updated
-        transcript
+      summary: Uploads a contribution
+      description:
+        Uploads a contribution and returns a signed contribution receipt
+        See contributionSchema.json for more detailed schema definition.
       requestBody:
         content:
           application/json:
             schema:
-              $ref: 'contributionSchema.json'
+                $ref: '#/components/schemas/BatchContribution'
       responses:
         200:
           description: successful operation
           content:
             application/json:
               schema:
-                type: string
+                $ref: '#/components/schemas/ContributionReceipt'
+        400:
+          description: invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContributionError'
+      security:
+        - BearerAuth: []
   /contribution/abort:
     post:
       tags:
       - Contribution 
-      summary: | 
-        Indicates an error while contributing. Clients must use this endpoint 
+      summary: Cancel contribution attempt
+      description: | 
+        Indicates an error while contributing (e.g. an error when performing
+        crypto calculations). Clients should use this endpoint 
         in the event of an unrecoverable error after
-        contribution has started.
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Participant'
+        contribution has started to allow other users to participate sooner.
       responses:
         200:
-          description: successful operation
+          description: contribution was aborted, another participant will be selected
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ContributionStatus'
+                type: object
+        400:
+          description: invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContributionAbortError'
+      security:
+        - BearerAuth: []
   /lobby/try_contribute:
     post:
       tags:
@@ -107,38 +106,55 @@ paths:
       summary: Check-in and request a contribution file
       description: Check-in with the sequencer, thus confirming the client's liveness.
         Response will indicate whether the client should start working on the contribution or continue pining via /lobby/try_contribute all.
-      requestBody:
-        description: Check-in and request a contribution file
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ParticipantQueueStatus'
-        required: true
       responses:
+        200:
+          description: Check-in successful. See response to determine if the participant was selected to be a contributor.
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/BatchContribution'
+                    description: 
+                      User was selected for contribution. Use the returned contribution file to calculate participant's points and then post results to /contribute
+                      See contributionSchema.json for more detailed schema definition.
+                  - type: object
+                    properties:
+                      error:
+                        type: string
+                        enum: ["another contribution in progress"]
         400:
-          description: Invalid
+          description: rate limited
           content:
             application/json:
               schema:
                 type: object
-        200:
-          description: successful operation
+                properties:
+                  error:
+                    type: string
+                    enum: ["call came too early. rate limited"]
+        401:
+          description: unauthorized access
           content:
             application/json:
               schema:
-                $ref: 'contributionSchema.json'
-        204:
-          description: Not ready for contribution. Someone else is currently contributing, try again soon.
+                type: object
+                properties:
+                  error:
+                    type: string
+                    enum: ["unknown session id"]
+      security:
+        - BearerAuth: []
   /auth/request_link:
-    post:
+    get:
+      parameters:
+        - in: query
+          name: redirect_to
+          schema:
+            type: string
+          description: After successful authentication, user will be redirected to {redirect_to}?session_id=xxx&sub=xxx&nickname=xxx&provider=xxx&exp=xxx. Session id can be used as Bearer token for authenticated endpoints."
       tags:
       - Login
       summary: Get links to Ethereum and GitHub login processes
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/AuthRequest'
       responses:
         403:
           description: Invalid HTTP method
@@ -167,81 +183,145 @@ paths:
                 $ref: '#/components/schemas/AuthResponse'
 components:
   schemas:
-    ApiResponse:
+    BatchContribution:
       type: object
+      description: ""
       properties:
-        message:
-          type: string
-        type:
-          type: string
-        code:
-          type: integer
-          format: int32
-    ContributionResult:
+        contributions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Contribution'
+          minItems: 4
+          maxItems: 4
+    BatchTranscript:
+      type: object
+      description: Current transcripts for all 4 sub-ceremonies
+      properties:
+        transcripts:
+          type: array
+          items:
+            $ref: '#/components/schemas/Transcript'
+          minItems: 4
+          maxItems: 4
       required:
-      - id
+        - transcripts
+    Contribution:
       type: object
-      description: |
-        The updated SRS
+      description: ""
       properties:
-        id:
-          type: string
-        contribution:
+        numG1Powers:
+          type: number
+          format: int32
+        numG2Powers:
+          type: number
+          format: int32
+        powersOfTau:
           type: object
+          properties:
+            G1Powers:
+              type: array
+              items:
+                type: string
+            G2Powers:
+              type: array
+              items:
+                type: string
+          required:
+            - G1Powers
+            - G2Powers
+        potPubkey:
+          type: string
+      required:
+        - numG1Powers
+        - numG2Powers
+        - powersOfTau
+        - potPubkey
     CeremonyStatus:
       type: object
       description: Overall ceremony summary metrics
-    ContributionStatus:
-      required:
-      - id
-      type: object
-      description: |
-        Used to report an error while in the computation phase
       properties:
-        id:
+        lobby_size:
+          type: number
+          format: int32
+        num_contributions:
+          type: number
+          format: int32
+        sequencer_address:
+          description: Public Ethereum address of sequencer server, uses captitals-based checksum. Can be used to validate contribution receipt signatures.
           type: string
-        reason:
-          type: string
-    ParticipantQueueStatus:
-      required:
-      - queuePosition
-      - nextCheckinTime
-      - queueStatus
-      - id
+    ContributionAbortError:
       type: object
-      description: |
-        Status of the participant's queue position, including details of the next expected check-in time
+      description: Contribution couldn't be aborted
       properties:
-        queuePosition:
-          type: integer
-          format: int32
-        nextCheckinTime:
-          type: integer
-          format: int32
-        queueStatus:
+        error:
           type: string
           enum:
-          - notQueued
-          - queued
-          - readyToContribute
-          - contributing
-          - expired
-        id:
-          type: string
-    Participant:
-      required:
-      - idType
-      - id
+            - "invalid Bearer token"
+            - "not your turn to participate"
+    ContributionError:
       type: object
+      description: Contribution couldn't be accepted
       properties:
-        idType:
+        error:
           type: string
           enum:
-          - ethAddress
-          - ensName
-          - githubHandle
-        id:
+            - "invalid Bearer token"
+            - "not your turn to participate"
+            - "contribution invalid: Unexpected number of contributions: expected {0}, got {1}"
+            - "contribution invalid: Unexpected number of contributions: Error in contribution {0}: ref:CeremonyError"
+    ContributionReceipt:
+      type: object
+      description: Confirmation that a contribution was received successfully. Participant should keep the receipt to be able to validate that 1) it was signed by the sequencer 2) the contribution was included in the final transcript
+      properties:
+        receipt:
           type: string
+          description: "serialized JSON (to avoid unordered keys) with properties: id_token: { sub: string, nickname: string, provider: string, exp: u64 }, g2: [string] "
+        signature:
+          type: string
+          description: ECDSA eth signature of the receipt string
+    Transcript:
+      type: object
+      description: Current transcript
+      properties:
+        numG1Powers:
+          type: number
+          format: int32
+        numG2Powers:
+          type: number
+          format: int32
+        powersOfTau:
+          type: object
+          properties:
+            G1Powers:
+              type: array
+              items:
+                type: string
+            G2Powers:
+              type: array
+              items:
+                type: string
+          required:
+            - G1Powers
+            - G2Powers
+        witness:
+          type: object
+          properties:
+            runningProducts:
+              type: array
+              items:
+                type: string
+            potPubkeys:
+              type: array
+              items:
+                type: string
+          required:
+            - runningProducts
+            - potPubkeys
+      required:
+        - numG1Powers
+        - numG2Powers
+        - powersOfTau
+        - witness
     AuthResponse:
       type: object
       description: |
@@ -251,16 +331,10 @@ components:
           type: object
         token:
           type: string
-    AuthRequest:
-      type: object
-      description: |
-        A JSON object. The sig property must contain a hex representation of a message - 'ZKParty sign-in' - signed with the private key for ethAddress using Ethereum standard signing (i.e. the  message is prefixed by \x19Ethereum Signed Message ...) The Eth account must have a nonce >= 3 on mainnet.
-      properties:
-        sig:
-          type: string
-        ethAddress:
-          type: string
   securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
     authWithGithub:
       type: apiKey
       name: API_KEY
@@ -269,6 +343,6 @@ components:
       type: oauth2
       description: Firebase OAuth
       flows:
-        clientCredentials:
+        implicit:
           authorizationUrl: https://us-central1-trustedsetuptest.cloudfunctions.net/Auth-Auth
-...
+          scopes: {}
