@@ -129,6 +129,9 @@ paths:
               schema:
                 type: object
                 properties:
+                  code:
+                    type: string
+                    enum: ["TryContributeError::RateLimited"]
                   error:
                     type: string
                     enum: ["call came too early. rate limited"]
@@ -139,6 +142,9 @@ paths:
               schema:
                 type: object
                 properties:
+                  code:
+                    type: string
+                    enum: ["TryContributeError::UnknownSessionId"]
                   error:
                     type: string
                     enum: ["unknown session id"]
@@ -253,6 +259,11 @@ components:
       type: object
       description: Contribution couldn't be aborted
       properties:
+        code:
+          type: string
+          enum:
+            - SessionError::InvalidSessionId
+            - ContributeError::NotUsersTurn
         error:
           type: string
           enum:
@@ -262,13 +273,46 @@ components:
       type: object
       description: Contribution couldn't be accepted
       properties:
+        code:
+          type: string
+          enum:
+            - SessionError::InvalidSessionId
+            - ContributeError::NotUsersTurn
+            - CeremoniesError::UnexpectedNumContributions
+            - CeremonyError::UnsupportedNumG1Powers
+            - CeremonyError::UnsupportedNumG2Powers
+            - CeremonyError::UnexpectedNumG1Powers
+            - CeremonyError::UnexpectedNumG2Powers
+            - CeremonyError::InconsistentNumG2Powers
+            - CeremonyError::UnsupportedMoreG2Powers
+            - CeremonyError::InvalidG1Power
+            - CeremonyError::InvalidG2Power
+            - CeremonyError::ParserError
+            - CeremonyError::InvalidPubKey
+            - CeremonyError::InvalidWitnessProduct
+            - CeremonyError::InvalidWitnessPubKey
+            - CeremonyError::PubKeyPairingFailed
+            - CeremonyError::G1PairingFailed
+            - CeremonyError::G2PairingFailed
+            - CeremonyError::ZeroPubkey
+            - CeremonyError::ZeroG1
+            - CeremonyError::ZeroG2
+            - CeremonyError::InvalidG1FirstValue
+            - CeremonyError::InvalidG2FirstValue
+            - CeremonyError::InvalidG1One
+            - CeremonyError::InvalidG2One
+            - CeremonyError::InvalidG2Pubkey
+            - CeremonyError::DuplicateG1
+            - CeremonyError::DuplicateG2
+            - CeremonyError::ContributionNoEntropy
+            - CeremonyError::WitnessLengthMismatch
         error:
           type: string
           enum:
             - "invalid Bearer token"
             - "not your turn to participate"
             - "contribution invalid: Unexpected number of contributions: expected {0}, got {1}"
-            - "contribution invalid: Unexpected number of contributions: Error in contribution {0}: ref:CeremonyError"
+            - "contribution invalid: Error in contribution {0}: {1}"
     ContributionReceipt:
       type: object
       description: Confirmation that a contribution was received successfully. Participant should keep the receipt to be able to validate that 1) it was signed by the sequencer 2) the contribution was included in the final transcript
