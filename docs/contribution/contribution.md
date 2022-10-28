@@ -24,13 +24,15 @@ class Contribution:
     num_g1_powers: int
     num_g2_powers: int
     powers_of_tau: PowersOfTau
-    pot_pubkey: bls.G2Point
+    pot_pubkey: Optional[bls.G2Point] = None
+    bls_signature: Union[bls.G1Point, str, None] = None
 ```
 
 ### `BatchContribution`
 
 ```python
 @dataclass
-class BatchContribution
-    contributions: List[Contribution]
+class BatchContribution:
+    contributions: List[Contribution] = []
+    ecdsa_signature: Union[bytes, str, None] = None
 ```

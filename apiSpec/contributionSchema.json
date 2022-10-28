@@ -11,9 +11,17 @@
                 {"$ref": "#/$defs/2^15SubContribution"}
             ],
             "items": false
+        },
+        "ecdsaSignature": {
+            "type": "string",
+            "pattern": "^0x[a-f\\d]{130}$|^$"
         }
     },
     "$defs": {
+        "emptyString": {
+            "type": "string",
+            "pattern": "^$"
+        },
         "G1Point": {
             "type": "string",
             "pattern": "^0x[a-f0-9]{96}$"
@@ -62,6 +70,12 @@
                 },
                 "potPubkey": {
                     "type": "string"
+                },
+                "bls_signature": {
+                    "anyOf": [
+                        {"$ref": "#/$defs/G1Point"},
+                        {"$ref": "#/$defs/emptyString"}
+                    ]
                 }
             },
             "required": [
@@ -110,6 +124,12 @@
                 },
                 "potPubkey": {
                     "type": "string"
+                },
+                "bls_signature": {
+                    "anyOf": [
+                        {"$ref": "#/$defs/G1Point"},
+                        {"$ref": "#/$defs/emptyString"}
+                    ]
                 }
             },
             "required": [
@@ -159,6 +179,12 @@
                 ,
                 "potPubkey": {
                     "type": "string"
+                },
+                "bls_signature": {
+                    "anyOf": [
+                        {"$ref": "#/$defs/G1Point"},
+                        {"$ref": "#/$defs/emptyString"}
+                    ]
                 }
             },
             "required": [
@@ -208,6 +234,12 @@
                 ,
                 "potPubkey": {
                     "type": "string"
+                },
+                "bls_signature": {
+                    "anyOf": [
+                        {"$ref": "#/$defs/G1Point"},
+                        {"$ref": "#/$defs/emptyString"}
+                    ]
                 }
             },
             "required": [
