@@ -107,7 +107,7 @@ def non_zero_check(batch_contribution: BatchContribution) -> bool:
 
 _Note:_ The following pairing checks SHOULD be batched via a random linear combination which would reduce the number of final exponentiations to 2 and decrease the number of Miller loops needed.
 
-- __Tau update construction__ - Verify that the latest contribution is correctly built on top of the previous ones. Let $[\tau^1_{k}]_1$ be the first power of tau from the most recent ($k$-th)`contribution` and $[\pi]_1^{k-1} := [\tau^1_{k-1}]_1$ be the transcript after updating from the previous correct `contribution`.  Verifying that $\tau$ was updated correctly can then be performed by checking $e([\pi_{k-1}]_1, [x_k]_2) \stackrel{?}{=}e([\pi_{k}]_1, g_2)$
+- __Tau update construction__ - Verify that the latest contribution is correctly built on top of the previous ones. Let $[\tau^1_{k}]\_1$ be the first power of tau from the most recent ($k$-th)`contribution` and $[\pi]_1^{k-1} := [\tau^1_{k-1}]\_1$ be the transcript after updating from the previous correct `contribution`.  Verifying that $\tau$ was updated correctly can then be performed by checking $e([\pi_{k-1}]\_1, [x_k]\_2) \stackrel{?}{=}e([\pi_{k}]_1, g_2)$
 
 ```python
 def tau_update_check(batch_contribution: BatchContribution, batch_transcript: BatchTranscript) -> bool:
@@ -120,7 +120,7 @@ def tau_update_check(batch_contribution: BatchContribution, batch_transcript: Ba
     return True
 ```
 
-- __Correct construction of G1 Powers__ - Verify that the $\mathbb{G}_1$ points provided are indeed incremental powers of (the same) $\tau$. This check is done by asserting that the next $\mathbb{G}_1$ point is the result of multiplying the previous one with $\tau$: $e([\tau^{i + 1}]_1, g_2) \stackrel{?}{=}e([\tau^i]_1, [\tau]_2)$. Note that the check that the $\tau$ in $[\tau]_2$ is the same as $\pi_k$ is done via the `g2_powers_check()` below which verifies that $e([\tau^i]_1, g_2) \stackrel{?}{=}e(g_2, [\tau^i]_2)$ and $[\tau^i]_1 = [\pi_k]_1$ due to the `Transcript` updates rules.
+- __Correct construction of G1 Powers__ - Verify that the $\mathbb{G}\_1$ points provided are indeed incremental powers of (the same) $\tau$. This check is done by asserting that the next $\mathbb{G}\_1$ point is the result of multiplying the previous one with $\tau$: $e([\tau^{i + 1}]\_1, g_2) \stackrel{?}{=}e([\tau^i]\_1, [\tau]\_2)$. Note that the check that the $\tau$ in $[\tau]\_2$ is the same as $\pi_k$ is done via the `g2_powers_check()` below which verifies that $e([\tau^i]\_1, g_2) \stackrel{?}{=}e(g_2, [\tau^i]\_2)$ and $[\tau^i]\_1 = [\pi_k]\_1$ due to the `Transcript` updates rules.
 
 ```python
 def g1_powers_check(batch_contribution: BatchContribution) -> bool:
@@ -133,7 +133,7 @@ def g1_powers_check(batch_contribution: BatchContribution) -> bool:
     return True
 ```
 
-- __Correct construction of G2 Powers__ - Verify that the $\mathbb{G}_2$ points provided are indeed incremental powers of $\tau$ and that $\tau$ is the same across $\mathbb{G}_1$ and $\mathbb{G}_2$. This check is done by verifying that $\tau^i$ is the same across $[\tau^i]_1$ and $[\tau^i]_2$. $e([\tau^i]_1, g_2) \stackrel{?}{=}e(g_2, [\tau^i]_2)$
+- __Correct construction of G2 Powers__ - Verify that the $\mathbb{G}\_2$ points provided are indeed incremental powers of $\tau$ and that $\tau$ is the same across $\mathbb{G}\_1$ and $\mathbb{G}\_2$. This check is done by verifying that $\tau^i$ is the same across $[\tau^i]\_1$ and $[\tau^i]\_2$. $e([\tau^i]\_1, g_2) \stackrel{?}{=}e(g_2, [\tau^i]\_2)$
 
 ```python
 def g2_powers_check(batch_contribution: BatchContribution) -> bool:
