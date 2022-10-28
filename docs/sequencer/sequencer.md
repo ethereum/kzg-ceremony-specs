@@ -58,7 +58,7 @@ def schema_check(contribution_json: str, schema_path: str) -> bool:
 
 ### Contribution parameter check
 
-This check verifies that the number of $\mathbb{G}_1$ and $\mathbb{G}_2$ powers meets expectations.
+This check verifies that the number of $\mathbb{G}\_1$ and $\mathbb{G}\_2$ powers meets expectations.
 
 ```python
 def parameter_check(batch_contribution: BatchContribution, batch_transcript: BatchTranscript) -> bool:
@@ -78,8 +78,8 @@ def parameter_check(batch_contribution: BatchContribution, batch_transcript: Bat
 ### Point Checks
 
 - Prime Subgroup checks
-    - __G1 Powers Subgroup check__ - For each of the $\mathbb{G}_1$ Powers of Tau (`g1_powers`), verify that they are actually elements of the prime-ordered subgroup.
-    - __G2 Powers Subgroup check__ - For each of the $\mathbb{G}_2$ Powers of Tau (`g2_powers`), verify that they are actually elements of the prime-ordered subgroup.
+    - __G1 Powers Subgroup check__ - For each of the $\mathbb{G}\_1$ Powers of Tau (`g1_powers`), verify that they are actually elements of the prime-ordered subgroup.
+    - __G2 Powers Subgroup check__ - For each of the $\mathbb{G}\_2$ Powers of Tau (`g2_powers`), verify that they are actually elements of the prime-ordered subgroup.
     - __PoTPubkey Subgroup checks__ - Check that the PoTPubkey is actually an element of the prime-ordered subgroup.
 
 ```python
@@ -107,7 +107,7 @@ def non_zero_check(batch_contribution: BatchContribution) -> bool:
 
 _Note:_ The following pairing checks SHOULD be batched via a random linear combination which would reduce the number of final exponentiations to 2 and decrease the number of Miller loops needed.
 
-- __Tau update construction__ - Verify that the latest contribution is correctly built on top of the previous ones. Let $[\tau^1_{k}]\_1$ be the first power of tau from the most recent ($k$-th)`contribution` and $[\pi]_1^{k-1} := [\tau^1_{k-1}]\_1$ be the transcript after updating from the previous correct `contribution`.  Verifying that $\tau$ was updated correctly can then be performed by checking $e([\pi_{k-1}]\_1, [x_k]\_2) \stackrel{?}{=}e([\pi_{k}]_1, g_2)$
+- __Tau update construction__ - Verify that the latest contribution is correctly built on top of the previous ones. Let $[\tau^1_{k}]\_1$ be the first power of tau from the most recent ( $k$ -th )`contribution` and $[\pi]\_1^{k-1} := [\tau^1_{k-1}]\_1$ be the transcript after updating from the previous correct `contribution`.  Verifying that $\tau$ was updated correctly can then be performed by checking $e([\pi_{k-1}]\_1, [x_k]\_2) \stackrel{?}{=}e([\pi_{k}]_1, g_2)$
 
 ```python
 def tau_update_check(batch_contribution: BatchContribution, batch_transcript: BatchTranscript) -> bool:
