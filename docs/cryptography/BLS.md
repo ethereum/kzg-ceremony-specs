@@ -60,7 +60,7 @@ Implementations making use of the IRTF BLS Standards MUST choose the `BLS_SIG_BL
 
 ### `Sign`
 
-- `Sign(private_key, message)` (Support RECOMMENDED) generates a BLS signature under the `BLS_SIG_BLS12381G1_XMD:SHA-256_SSWU_RO_POP_` cyphersuite given a `private_key` $\in \mathbb{F}_r$ and `message`. Returns a `signature` which is of type `bls.G2Point`.
+- `Sign(private_key, message)` (Support RECOMMENDED) generates a BLS signature under the `BLS_SIG_BLS12381G1_XMD:SHA-256_SSWU_RO_POP_` cyphersuite given a `private_key` $\in \mathbb{F}_r$ and `message`. Returns a `signature` which is of type `bls.G1Point`.
 
 ### `Verify`
 
