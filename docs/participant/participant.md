@@ -152,7 +152,7 @@ def contribute(batch_contribution: BatchContribution,
             contribution = sign_identity(contribution, x, identity)
         del x
     if ethereum_address is not None:
-        contribution = sign_contribution(contribution, ethereum_address)
+        batch_contribution = sign_contribution(batch_contribution, ethereum_address)
     return batch_contribution
 ```
 
