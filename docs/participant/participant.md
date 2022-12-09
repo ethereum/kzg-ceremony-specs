@@ -131,8 +131,8 @@ def sign_identity(contribution: Contribution, x: int, identity: str) -> Contribu
 
 ```python
 def sign_contribution(batch_contribution: BatchContribution, ethereum_address: Optional[str]) -> BatchContribution:
-    typed_data = contribution_to_typed_data_str(contribution)  # function defined in contributionSigning.md
-    contribution.ecdsa_signature = web3.eth.sign_typed_data(ethereum_address, json.loads(typed_data))
+    typed_data = contribution_to_typed_data_str(batch_contribution)  # function defined in contributionSigning.md
+    batch_contribution.ecdsa_signature = web3.eth.sign_typed_data(ethereum_address, json.loads(typed_data))
     return batch_contribution
 ```
 
