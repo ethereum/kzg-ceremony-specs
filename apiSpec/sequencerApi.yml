@@ -9,7 +9,7 @@ info:
     url: http://creativecommons.org/publicdomain/zero/1.0/
   version: 1.0.0
 servers:
-- url: https://sequencer.ceremony.ethereum.org
+- url: https://seq.ceremony.ethereum.org
 tags:
   - name: Ceremony
     description: Ceremony progress and status
