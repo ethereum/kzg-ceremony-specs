@@ -71,7 +71,7 @@
                 "potPubkey": {
                     "type": "string"
                 },
-                "bls_signature": {
+                "blsSignature": {
                     "anyOf": [
                         {"$ref": "#/$defs/G1Point"},
                         {"$ref": "#/$defs/emptyString"}
@@ -125,7 +125,7 @@
                 "potPubkey": {
                     "type": "string"
                 },
-                "bls_signature": {
+                "blsSignature": {
                     "anyOf": [
                         {"$ref": "#/$defs/G1Point"},
                         {"$ref": "#/$defs/emptyString"}
@@ -175,12 +175,11 @@
                         "G1Powers",
                         "G2Powers"
                     ]
-                }
-                ,
+                },
                 "potPubkey": {
                     "type": "string"
                 },
-                "bls_signature": {
+                "blsSignature": {
                     "anyOf": [
                         {"$ref": "#/$defs/G1Point"},
                         {"$ref": "#/$defs/emptyString"}
@@ -230,12 +229,11 @@
                         "G1Powers",
                         "G2Powers"
                     ]
-                }
-                ,
+                },
                 "potPubkey": {
                     "type": "string"
                 },
-                "bls_signature": {
+                "blsSignature": {
                     "anyOf": [
                         {"$ref": "#/$defs/G1Point"},
                         {"$ref": "#/$defs/emptyString"}

@@ -76,11 +76,11 @@ paths:
   /contribution/abort:
     post:
       tags:
-      - Contribution 
+      - Contribution
       summary: Cancel contribution attempt
-      description: | 
+      description: |
         Indicates an error while contributing (e.g. an error when performing
-        crypto calculations). Clients should use this endpoint 
+        crypto calculations). Clients should use this endpoint
         in the event of an unrecoverable error after
         contribution has started to allow other users to participate sooner.
       responses:
@@ -113,7 +113,7 @@ paths:
               schema:
                 oneOf:
                   - $ref: '#/components/schemas/BatchContribution'
-                    description: 
+                    description:
                       User was selected for contribution. Use the returned contribution file to calculate participant's points and then post results to /contribute
                       See contributionSchema.json for more detailed schema definition.
                   - type: object
@@ -121,6 +121,19 @@ paths:
                       error:
                         type: string
                         enum: ["another contribution in progress"]
+        200:
+          description: another contribution in progress
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                    enum: ["TryContributeError::AnotherContributionInProgress"]
+                  message:
+                    type: string
+                    enum: ["another contribution in progress"]
         400:
           description: rate limited
           content:
