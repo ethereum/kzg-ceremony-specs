@@ -58,7 +58,3 @@ The sequencer will ensure that no more than a single contributor is contributing
 Once the participant finishes computing their contribution, they call `POST /contribute` with the resulting file.
 If sequencer determines the contribution was valid (see: [sequencer spec](./sequencer.md)), it returns a contribution receipt.
 Otherwise an error is returned. In both cases the participant is blacklisted from joining the lobby and contributing again.
-
-# Sequencer Handover
-
-Handover from one sequencer to another will occur at infrequent, planned intervals over the time span of the ceremony. To facilitate handover, the sequencer is able to stop accepting new participants to the lobby, and to halt processing once the lobby is emptied (either by participants becoming offline or finishing their contributions).
