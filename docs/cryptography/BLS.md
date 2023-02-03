@@ -31,8 +31,8 @@ Implementations making use of the IRTF BLS Standards MUST choose the `BLS_SIG_BL
 
 ### Encoding & types
 
-- `bls.G1Point` - the type of a $\mathbb{G}_1$ point. A 48 byte object with encoding defined as per the z-cash specs.
-- `bls.G2Point` - the type of a $\mathbb{G}_2$ point. A 48 byte object with encoding defined as per the z-cash specs.
+- `bls.G1Point` - the type of a $\mathbb{G}_1$ point. A 48 bytes object with encoding defined as per the z-cash specs.
+- `bls.G2Point` - the type of a $\mathbb{G}_2$ point. A 96 bytes object with encoding defined as per the z-cash specs.
 
 ### Parameters
 
